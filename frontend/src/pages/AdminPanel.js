@@ -431,7 +431,7 @@ const AdminPanel = () => {
                   <div key={report.id} className="item-card" data-testid={`financial-item-${report.id}`}>
                     <div className="item-content">
                       <h4>{report.title}</h4>
-                      <p className="amount">RM {report.amount.toLocaleString()}</p>
+                      <p className="amount">Rp {report.amount.toLocaleString()}</p>
                       <span className="item-meta">{report.period}</span>
                       {report.description && <p className="description">{report.description}</p>}
                     </div>
@@ -441,7 +441,7 @@ const AdminPanel = () => {
                       onClick={() => deleteFinancialReport(report.id)}
                       data-testid={`delete-financial-${report.id}`}
                     >
-                      Delete
+                      Hapus
                     </Button>
                   </div>
                 ))}
