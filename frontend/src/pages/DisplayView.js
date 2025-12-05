@@ -222,12 +222,26 @@ const DisplayView = () => {
           <div className="financial-section" data-testid="financial-section">
             <div className="financial-card">
               <div className="financial-title">Laporan Keuangan</div>
-              {financialReports.slice(0, 3).map((report, idx) => (
-                <div key={idx} className="financial-item" data-testid={`financial-item-${idx}`}>
-                  <div className="financial-label">{report.title}</div>
-                  <div className="financial-amount">Rp {report.amount.toLocaleString('id-ID')}</div>
-                </div>
-              ))}
+              {financialReports[0] && (
+                <>
+                  <div className="financial-item" data-testid="financial-item-0">
+                    <div className="financial-label">Saldo Pekan Lalu</div>
+                    <div className="financial-amount">Rp {financialReports[0].saldo_pekan_lalu?.toLocaleString('id-ID')}</div>
+                  </div>
+                  <div className="financial-item" data-testid="financial-item-1">
+                    <div className="financial-label">Infaq Pekan Ini</div>
+                    <div className="financial-amount positive">Rp {financialReports[0].infaq_pekan_ini?.toLocaleString('id-ID')}</div>
+                  </div>
+                  <div className="financial-item" data-testid="financial-item-2">
+                    <div className="financial-label">Pengeluaran</div>
+                    <div className="financial-amount negative">Rp {financialReports[0].pengeluaran?.toLocaleString('id-ID')}</div>
+                  </div>
+                  <div className="financial-item financial-total" data-testid="financial-item-3">
+                    <div className="financial-label">Saldo Pekan Ini</div>
+                    <div className="financial-amount">Rp {financialReports[0].saldo_pekan_ini?.toLocaleString('id-ID')}</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
