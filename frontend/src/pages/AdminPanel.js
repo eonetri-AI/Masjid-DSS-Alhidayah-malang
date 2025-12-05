@@ -367,7 +367,7 @@ const AdminPanel = () => {
                       onClick={() => deleteQuranVerse(verse.id)}
                       data-testid={`delete-verse-${verse.id}`}
                     >
-                      Delete
+                      Hapus
                     </Button>
                   </div>
                 ))}
