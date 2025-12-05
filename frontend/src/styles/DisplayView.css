@@ -264,6 +264,24 @@
   border-bottom: none;
 }
 
+.financial-total {
+  background: rgba(212, 175, 55, 0.1);
+  padding: 0.75rem;
+  margin: 0.5rem -0.5rem -0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.financial-total .financial-label {
+  color: #D4AF37;
+  font-weight: 700;
+}
+
+.financial-total .financial-amount {
+  color: #D4AF37;
+  font-size: 1.3rem;
+}
+
 .financial-label {
   font-size: 0.8rem;
   color: #94A3B8;
@@ -275,6 +293,14 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: #F8FAFC;
+}
+
+.financial-amount.positive {
+  color: #10B981;
+}
+
+.financial-amount.negative {
+  color: #EF4444;
 }
 
 /* Mecca Section */
