@@ -16,6 +16,9 @@ const DisplayView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [settings, setSettings] = useState(null);
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   // Fetch all data
   useEffect(() => {
