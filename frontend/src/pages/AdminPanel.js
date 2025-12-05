@@ -502,27 +502,40 @@ const AdminPanel = () => {
           <Card>
             <CardHeader>
               <CardTitle>Laporan Keuangan</CardTitle>
-              <CardDescription>Kelola informasi keuangan masjid</CardDescription>
+              <CardDescription>Kelola informasi keuangan masjid (Saldo Pekan Ini dihitung otomatis)</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={addFinancialReport} className="add-form">
                 <div className="form-group">
-                  <Label htmlFor="fin_title">Judul</Label>
+                  <Label htmlFor="saldo_pekan_lalu">Saldo Pekan Lalu (Rp)</Label>
                   <Input
-                    id="fin_title"
-                    name="title"
-                    data-testid="input-financial-title"
+                    id="saldo_pekan_lalu"
+                    name="saldo_pekan_lalu"
+                    type="number"
+                    step="0.01"
+                    data-testid="input-saldo-pekan-lalu"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="fin_amount">Jumlah (Rp)</Label>
+                  <Label htmlFor="infaq_pekan_ini">Infaq Pekan Ini (Rp)</Label>
                   <Input
-                    id="fin_amount"
-                    name="amount"
+                    id="infaq_pekan_ini"
+                    name="infaq_pekan_ini"
                     type="number"
                     step="0.01"
-                    data-testid="input-financial-amount"
+                    data-testid="input-infaq-pekan-ini"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <Label htmlFor="pengeluaran">Pengeluaran (Rp)</Label>
+                  <Input
+                    id="pengeluaran"
+                    name="pengeluaran"
+                    type="number"
+                    step="0.01"
+                    data-testid="input-pengeluaran"
                     required
                   />
                 </div>
@@ -532,29 +545,39 @@ const AdminPanel = () => {
                     id="fin_period"
                     name="period"
                     data-testid="input-financial-period"
-                    placeholder="contoh: Januari 2025"
-                    required
+                    placeholder="contoh: Minggu ke-1 Desember 2025"
                   />
                 </div>
-                <div className="form-group">
-                  <Label htmlFor="fin_description">Keterangan</Label>
-                  <Textarea
-                    id="fin_description"
-                    name="description"
-                    data-testid="input-financial-description"
-                  />
+                <div className="calculation-info">
+                  <p><strong>Rumus:</strong> Saldo Pekan Ini = Saldo Pekan Lalu + Infaq Pekan Ini - Pengeluaran</p>
                 </div>
-                <Button type="submit" data-testid="add-financial-btn">Tambah Laporan</Button>
+                <Button type="submit" data-testid="add-financial-btn">Simpan Laporan</Button>
               </form>
 
               <div className="items-list">
                 {financialReports.map((report) => (
-                  <div key={report.id} className="item-card" data-testid={`financial-item-${report.id}`}>
+                  <div key={report.id} className="item-card financial-card-admin" data-testid={`financial-item-${report.id}`}>
                     <div className="item-content">
-                      <h4>{report.title}</h4>
-                      <p className="amount">Rp {report.amount.toLocaleString()}</p>
+                      <h4>Laporan Keuangan</h4>
+                      <div className="financial-details">
+                        <div className="financial-row">
+                          <span>Saldo Pekan Lalu:</span>
+                          <span className="amount">Rp {report.saldo_pekan_lalu?.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="financial-row positive">
+                          <span>Infaq Pekan Ini:</span>
+                          <span className="amount">Rp {report.infaq_pekan_ini?.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="financial-row negative">
+                          <span>Pengeluaran:</span>
+                          <span className="amount">Rp {report.pengeluaran?.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="financial-row total">
+                          <span>Saldo Pekan Ini:</span>
+                          <span className="amount">Rp {report.saldo_pekan_ini?.toLocaleString('id-ID')}</span>
+                        </div>
+                      </div>
                       <span className="item-meta">{report.period}</span>
-                      {report.description && <p className="description">{report.description}</p>}
                     </div>
                     <Button 
                       variant="destructive" 
