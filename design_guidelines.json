@@ -1,0 +1,141 @@
+{
+  "project_name": "Mosque Digital Signage System",
+  "design_philosophy": {
+    "persona": "E1: The Anti-AI Designer",
+    "core_concept": "Horological FIDS (Flight Information Display System) meets Spiritual Serenity",
+    "emotional_tone": "Precise, Timeless, Communal, Calm",
+    "fusion_elements": [
+      "Airport FIDS (Legibility)",
+      "High-End Horology (Precision/Gold Accents)",
+      "Islamic Geometry (Structural Grid)"
+    ]
+  },
+  "typography": {
+    "tv_display": {
+      "primary_font": "Manrope",
+      "mono_font": "JetBrains Mono",
+      "usage": {
+        "prayer_times": "JetBrains Mono (Tabular Nums)",
+        "headings": "Manrope (Bold/ExtraBold)",
+        "body": "Manrope (Medium)"
+      }
+    },
+    "mobile_control": {
+      "primary_font": "Plus Jakarta Sans",
+      "usage": {
+        "headings": "Plus Jakarta Sans (Bold)",
+        "body": "Plus Jakarta Sans (Regular)",
+        "ui_elements": "Plus Jakarta Sans (Medium)"
+      }
+    }
+  },
+  "colors": {
+    "tv_theme": {
+      "name": "Midnight Horology",
+      "background": "#020617",
+      "surface": "#0F172A",
+      "surface_highlight": "#1E293B",
+      "text_primary": "#F8FAFC",
+      "text_secondary": "#94A3B8",
+      "accent_gold": "#D4AF37",
+      "accent_gold_dim": "#786220",
+      "alert": "#EF4444",
+      "success": "#10B981"
+    },
+    "mobile_theme": {
+      "name": "Stone Tablet",
+      "background": "#F5F5F4",
+      "surface": "#FFFFFF",
+      "text_primary": "#1C1917",
+      "text_secondary": "#57534E",
+      "primary_action": "#064E3B",
+      "primary_action_hover": "#065F46",
+      "border": "#E7E5E4"
+    }
+  },
+  "layout_strategies": {
+    "tv_display": {
+      "type": "Bento Grid (Mode A)",
+      "grid_cols": "grid-cols-12",
+      "gap": "gap-6",
+      "padding": "p-8",
+      "structure": {
+        "hero_section": "col-span-8 row-span-2 (Next Prayer + Countdown)",
+        "sidebar": "col-span-4 row-span-3 (Upcoming Prayers List)",
+        "info_panel": "col-span-4 row-span-1 (Date/Weather)",
+        "ticker": "col-span-full (Announcements Marquee)",
+        "media_frame": "col-span-4 row-span-2 (Live Stream/Quran)"
+      }
+    },
+    "mobile_control": {
+      "type": "Control Room (Mode B)",
+      "container": "max-w-md mx-auto min-h-screen bg-stone-100",
+      "padding": "p-4",
+      "spacing": "space-y-4"
+    }
+  },
+  "components": {
+    "tv_widgets": {
+      "prayer_card": {
+        "base": "bg-slate-900/50 border border-slate-800 rounded-xl backdrop-blur-md",
+        "active": "bg-slate-900/80 border-yellow-600/50 shadow-[0_0_30px_rgba(212,175,55,0.1)]",
+        "text_style": "text-4xl font-mono tracking-tighter"
+      },
+      "countdown_timer": {
+        "style": "text-[12vw] leading-none font-black font-mono text-white tracking-tighter tabular-nums",
+        "subtext": "text-xl text-slate-400 uppercase tracking-[0.2em]"
+      },
+      "announcement_ticker": {
+        "style": "bg-slate-950 border-t border-slate-800 py-4",
+        "text": "text-2xl font-medium text-slate-200"
+      }
+    },
+    "mobile_widgets": {
+      "nav_bar": {
+        "style": "fixed bottom-0 w-full bg-white border-t border-stone-200 p-4 flex justify-around z-50"
+      },
+      "action_card": {
+        "style": "bg-white rounded-2xl p-6 shadow-sm border border-stone-100 active:scale-95 transition-transform"
+      },
+      "input_field": {
+        "style": "bg-stone-50 border-stone-200 focus:ring-emerald-600 rounded-lg h-12"
+      }
+    }
+  },
+  "visual_enhancers": {
+    "textures": {
+      "noise_overlay": "opacity-5 pointer-events-none fixed inset-0 z-50 mix-blend-overlay",
+      "gradient_glow": "radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.15) 0%, transparent 50%)"
+    },
+    "motion": {
+      "page_transition": "initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}",
+      "ticker_speed": "50s linear infinite"
+    }
+  },
+  "image_urls": {
+    "placeholders": {
+      "mecca_live_stream": "https://images.unsplash.com/photo-1542521148-51306e7ffc1e?q=85&w=1920&auto=format&fit=crop",
+      "mosque_bg_texture": "https://images.unsplash.com/photo-1761639935129-4e2ebf652a4c?q=85&w=1920&auto=format&fit=crop",
+      "abstract_pattern": "https://images.unsplash.com/photo-1655579263938-f76495c680df?q=85&w=1920&auto=format&fit=crop"
+    }
+  },
+  "instructions_to_main_agent": [
+    "CRITICAL: Implement TWO distinct layouts based on the route.",
+    "Route '/display': Use the TV Theme (Dark, Scaled for 4K, No interactive controls). Hide cursor after 3s.",
+    "Route '/admin': Use the Mobile Theme (Light, Touch-optimized).",
+    "Use 'JetBrains Mono' from Google Fonts for all time-related displays on TV.",
+    "Use 'Manrope' for all text on TV.",
+    "Use 'Plus Jakarta Sans' for the Admin Panel.",
+    "For the TV Display, ensure the 'Next Prayer' card is visually dominant (3x larger than others).",
+    "Implement a 'Marquee' component for announcements using 'react-fast-marquee'.",
+    "Use 'date-fns' and 'hijri-date' libraries for calendar displays.",
+    "Mock the 'Mecca Live Stream' with an iframe or the placeholder image provided."
+  ],
+  "universal_guidelines": [
+    "Do not use generic gradients. Use noise textures and subtle glows.",
+    "Ensure 4K readability: Base font size for TV should be at least 24px.",
+    "Avoid 'Inter' font. It is banned.",
+    "Use 'sonner' for toasts in the admin panel.",
+    "All interactive elements must have 'data-testid'."
+  ]
+}
