@@ -19,6 +19,7 @@ const DisplayView = () => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [weather, setWeather] = useState(null);
 
   // Fetch all data
   useEffect(() => {
