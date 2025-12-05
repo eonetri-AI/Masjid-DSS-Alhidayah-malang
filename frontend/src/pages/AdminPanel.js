@@ -159,7 +159,7 @@ const AdminPanel = () => {
     return (
       <div className="admin-loading" data-testid="admin-loading">
         <div className="loading-spinner"></div>
-        <p>Loading admin panel...</p>
+        <p>Memuat panel admin...</p>
       </div>
     );
   }
