@@ -215,6 +215,35 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
+                  <Label htmlFor="city_name">Nama Kota</Label>
+                  <select
+                    id="city_name"
+                    data-testid="select-city"
+                    value={settings?.city_name || "Malang"}
+                    onChange={handleCityChange}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="Jakarta">Jakarta</option>
+                    <option value="Bandung">Bandung</option>
+                    <option value="Yogyakarta">Yogyakarta</option>
+                    <option value="Solo">Solo</option>
+                    <option value="Semarang">Semarang</option>
+                    <option value="Surabaya">Surabaya</option>
+                    <option value="Malang">Malang</option>
+                    <option value="Kediri">Kediri</option>
+                    <option value="Jombang">Jombang</option>
+                    <option value="Blitar">Blitar</option>
+                    <option value="Madiun">Madiun</option>
+                    <option value="Ponorogo">Ponorogo</option>
+                    <option value="Pasuruan">Pasuruan</option>
+                    <option value="Probolinggo">Probolinggo</option>
+                    <option value="Jember">Jember</option>
+                    <option value="Banyuwangi">Banyuwangi</option>
+                  </select>
+                  <span className="text-xs text-gray-500">Koordinat GPS akan otomatis diperbarui</span>
+                </div>
+
+                <div className="form-group">
                   <Label htmlFor="mosque_address">Alamat Masjid</Label>
                   <Textarea
                     id="mosque_address"
@@ -226,14 +255,24 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
-                  <Label htmlFor="mosque_logo">URL Logo Masjid</Label>
-                  <Input
-                    id="mosque_logo"
-                    data-testid="input-mosque-logo"
-                    value={settings?.mosque_logo || ""}
-                    onChange={(e) => setSettings({...settings, mosque_logo: e.target.value})}
-                    placeholder="https://example.com/logo.png"
-                  />
+                  <Label htmlFor="mosque_logo">Logo Masjid</Label>
+                  <div className="upload-options">
+                    <Input
+                      type="file"
+                      id="logo_file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="mb-2"
+                    />
+                    <span className="text-xs text-gray-500">Atau masukkan URL:</span>
+                    <Input
+                      id="mosque_logo"
+                      data-testid="input-mosque-logo"
+                      value={settings?.mosque_logo || ""}
+                      onChange={(e) => setSettings({...settings, mosque_logo: e.target.value})}
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </div>
                   {settings?.mosque_logo && (
                     <div className="logo-preview">
                       <img src={settings.mosque_logo} alt="Preview Logo" />
