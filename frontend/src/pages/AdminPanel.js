@@ -297,7 +297,7 @@ const AdminPanel = () => {
                   <div key={ann.id} className="item-card" data-testid={`announcement-item-${ann.id}`}>
                     <div className="item-content">
                       <p>{ann.text}</p>
-                      <span className="item-meta">Priority: {ann.priority}</span>
+                      <span className="item-meta">Prioritas: {ann.priority}</span>
                     </div>
                     <Button 
                       variant="destructive" 
@@ -305,7 +305,7 @@ const AdminPanel = () => {
                       onClick={() => deleteAnnouncement(ann.id)}
                       data-testid={`delete-announcement-${ann.id}`}
                     >
-                      Delete
+                      Hapus
                     </Button>
                   </div>
                 ))}
