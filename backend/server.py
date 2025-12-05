@@ -134,68 +134,84 @@ class FinancialReportCreate(BaseModel):
 
 # ============== PRAYER TIMES SERVICE ==============
 
-def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, method: str = "ISNA", imsya_offset: int = 10) -> Dict:
-    """Calculate prayer times using islamic_times library"""
+async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_str: str, method: str = "ISNA", imsya_offset: int = 10) -> Dict:
+    """Calculate prayer times using Aladhan API"""
     try:
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         
-        # Create location object
-        location = ITLocation(
-            latitude=latitude,
-            longitude=longitude,
-            elevation=0,
-            date=now,
-            method=method
-        )
-        
-        # Get prayer times - returns PrayerTimes object
-        prayer_times = location.prayer_times()
-        
-        # Convert Gregorian to Hijri
-        hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
-        hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
-        
-        # Extract time from Prayer objects
-        def extract_time(prayer_obj):
-            if hasattr(prayer_obj, 'time'):
-                dt = prayer_obj.time
-                return dt.strftime("%H:%M")
-            return "00:00"
-        
-        # Get Fajr time for Imsya calculation
-        fajr_prayer = prayer_times.fajr
-        fajr_time_str = extract_time(fajr_prayer)
-        fajr_dt = datetime.strptime(fajr_time_str, "%H:%M")
-        
-        # Calculate Imsya (offset minutes before Fajr)
-        imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
-        imsya_time = imsya_dt.strftime("%H:%M")
-        
-        logging.info(f"Fajr: {fajr_time_str}, Imsya offset: {imsya_offset}, Imsya: {imsya_time}")
-        
-        return {
-            "fajr": fajr_time_str,
-            "imsya": imsya_time,
-            "sunrise": extract_time(prayer_times.sunrise),
-            "dhuhr": extract_time(prayer_times.zuhr),
-            "asr": extract_time(prayer_times.asr),
-            "maghrib": extract_time(prayer_times.maghrib),
-            "isha": extract_time(prayer_times.isha),
-            "gregorian_date": now.strftime("%A, %d %B %Y"),
-            "hijri_date": hijri_str,
-            "current_time": now.strftime("%H:%M:%S")
+        # Method mapping
+        method_map = {
+            "ISNA": 2,  # Islamic Society of North America
+            "MWL": 3,   # Muslim World League
+            "EGYPTIAN": 5,  # Egyptian General Authority
+            "KARACHI": 1,   # University of Islamic Sciences, Karachi
+            "MAKKAH": 4,    # Umm Al-Qura University, Makkah
+            "TEHRAN": 7     # Institute of Geophysics, University of Tehran
         }
+        
+        method_num = method_map.get(method, 2)
+        
+        # Call Aladhan API
+        url = f"http://api.aladhan.com/v1/timings/{int(now.timestamp())}"
+        params = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "method": method_num,
+            "school": 0  # Shafi (for Indonesia)
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            data = response.json()
+        
+        if data.get("code") == 200:
+            timings = data["data"]["timings"]
+            
+            # Extract prayer times
+            fajr_time = timings["Fajr"][:5]  # Get HH:MM only
+            sunrise_time = timings["Sunrise"][:5]
+            dhuhr_time = timings["Dhuhr"][:5]
+            asr_time = timings["Asr"][:5]
+            maghrib_time = timings["Maghrib"][:5]
+            isha_time = timings["Isha"][:5]
+            
+            # Calculate Imsya
+            fajr_dt = datetime.strptime(fajr_time, "%H:%M")
+            imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
+            imsya_time = imsya_dt.strftime("%H:%M")
+            
+            # Convert Gregorian to Hijri
+            hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
+            hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
+            
+            logging.info(f"Aladhan API: Fajr {fajr_time}, Dhuhr {dhuhr_time}, Maghrib {maghrib_time}")
+            
+            return {
+                "fajr": fajr_time,
+                "imsya": imsya_time,
+                "sunrise": sunrise_time,
+                "dhuhr": dhuhr_time,
+                "asr": asr_time,
+                "maghrib": maghrib_time,
+                "isha": isha_time,
+                "gregorian_date": now.strftime("%A, %d %B %Y"),
+                "hijri_date": hijri_str,
+                "current_time": now.strftime("%H:%M:%S")
+            }
+        else:
+            raise Exception("Aladhan API returned error")
+            
     except Exception as e:
-        logging.error(f"Error calculating prayer times: {e}")
+        logging.error(f"Error fetching prayer times from Aladhan API: {e}")
         import traceback
         traceback.print_exc()
-        # Return default times if calculation fails
+        
+        # Fallback to default times
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
         
-        # Default Imsya calculation
         fajr_dt = datetime.strptime("04:30", "%H:%M")
         imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
         imsya_time = imsya_dt.strftime("%H:%M")
