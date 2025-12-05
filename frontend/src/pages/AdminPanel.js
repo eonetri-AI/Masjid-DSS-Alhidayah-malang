@@ -45,6 +45,75 @@ const AdminPanel = () => {
     }
   };
 
+  // City change handler
+  const handleCityChange = async (e) => {
+    const cityName = e.target.value;
+    try {
+      const citiesRes = await axios.get(`${API}/cities`);
+      const cityData = citiesRes.data[cityName];
+      
+      if (cityData) {
+        setSettings({
+          ...settings,
+          city_name: cityName,
+          latitude: cityData.lat,
+          longitude: cityData.lon,
+          timezone: cityData.tz
+        });
+        toast.success(`Koordinat untuk ${cityName} berhasil dimuat!`);
+      }
+    } catch (error) {
+      console.error("Error loading city data:", error);
+      toast.error("Gagal memuat data kota");
+    }
+  };
+
+  // Logo upload handler
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axios.post(`${API}/upload-file`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      if (response.data.success) {
+        setSettings({...settings, mosque_logo: response.data.data_url});
+        toast.success("Logo berhasil diupload!");
+      }
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      toast.error("Gagal mengupload logo");
+    }
+  };
+
+  // Background upload handler
+  const handleBackgroundUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await axios.post(`${API}/upload-file`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      if (response.data.success) {
+        setSettings({...settings, background_image: response.data.data_url});
+        toast.success("Gambar latar belakang berhasil diupload!");
+      }
+    } catch (error) {
+      console.error("Error uploading background:", error);
+      toast.error("Gagal mengupload gambar latar");
+    }
+  };
+
   // Settings handlers
   const updateSettings = async (e) => {
     e.preventDefault();
