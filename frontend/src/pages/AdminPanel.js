@@ -40,7 +40,7 @@ const AdminPanel = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
-      toast.error("Failed to load data");
+      toast.error("Gagal memuat data");
       setLoading(false);
     }
   };
