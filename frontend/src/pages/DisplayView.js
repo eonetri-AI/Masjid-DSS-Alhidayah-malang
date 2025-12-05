@@ -46,9 +46,10 @@ const DisplayView = () => {
       const interval = setInterval(() => {
         const now = new Date();
         const totalSeconds = prayerTimes.time_until_next * 60 - (now.getSeconds());
-        const minutes = Math.floor(totalSeconds / 60);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        setCountdown({ minutes, seconds });
+        setCountdown({ hours, minutes, seconds });
       }, 1000);
       return () => clearInterval(interval);
     }
