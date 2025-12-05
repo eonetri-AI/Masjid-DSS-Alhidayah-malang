@@ -127,14 +127,14 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         
-        # Create location object
+        # Create location object - use explicit timezone instead of find_local_tz
         location = ITLocation(
             latitude=latitude,
             longitude=longitude,
             elevation=0,
             date=now,
             method=method,
-            find_local_tz=True
+            timezone=tz_str
         )
         
         # Get prayer times
@@ -144,29 +144,38 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
         hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
         
+        # Format times properly
+        def format_time(time_str):
+            if isinstance(time_str, str):
+                return time_str
+            return "00:00"
+        
         return {
-            "fajr": prayer_times.get("fajr", "05:30"),
-            "sunrise": prayer_times.get("sunrise", "07:00"),
-            "dhuhr": prayer_times.get("zuhr", "13:00"),
-            "asr": prayer_times.get("asr", "16:30"),
-            "maghrib": prayer_times.get("maghrib", "19:15"),
-            "isha": prayer_times.get("isha", "20:30"),
+            "fajr": format_time(prayer_times.get("fajr", "05:30")),
+            "sunrise": format_time(prayer_times.get("sunrise", "07:00")),
+            "dhuhr": format_time(prayer_times.get("zuhr", "13:00")),
+            "asr": format_time(prayer_times.get("asr", "16:30")),
+            "maghrib": format_time(prayer_times.get("maghrib", "19:15")),
+            "isha": format_time(prayer_times.get("isha", "20:30")),
             "gregorian_date": now.strftime("%A, %d %B %Y"),
             "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
         }
     except Exception as e:
         logging.error(f"Error calculating prayer times: {e}")
+        import traceback
+        traceback.print_exc()
         # Return default times if calculation fails
-        now = datetime.now()
+        tz = pytz.timezone(tz_str)
+        now = datetime.now(tz)
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
         return {
-            "fajr": "05:30",
-            "sunrise": "07:00",
-            "dhuhr": "13:00",
-            "asr": "16:30",
-            "maghrib": "19:15",
-            "isha": "20:30",
+            "fajr": "04:30",
+            "sunrise": "05:45",
+            "dhuhr": "11:45",
+            "asr": "15:15",
+            "maghrib": "17:45",
+            "isha": "19:00",
             "gregorian_date": now.strftime("%A, %d %B %Y"),
             "hijri_date": f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}",
             "current_time": now.strftime("%H:%M:%S")
