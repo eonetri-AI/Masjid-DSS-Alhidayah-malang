@@ -102,23 +102,23 @@ const AdminPanel = () => {
 
     try {
       await axios.post(`${API}/quran-verses`, newVerse);
-      toast.success("Quran verse added!");
+      toast.success("Ayat berhasil ditambahkan!");
       fetchAllData();
       e.target.reset();
     } catch (error) {
       console.error("Error adding verse:", error);
-      toast.error("Failed to add verse");
+      toast.error("Gagal menambahkan ayat");
     }
   };
 
   const deleteQuranVerse = async (id) => {
     try {
       await axios.delete(`${API}/quran-verses/${id}`);
-      toast.success("Verse deleted!");
+      toast.success("Ayat berhasil dihapus!");
       fetchAllData();
     } catch (error) {
       console.error("Error deleting verse:", error);
-      toast.error("Failed to delete verse");
+      toast.error("Gagal menghapus ayat");
     }
   };
 
