@@ -242,6 +242,114 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
+                  <Label htmlFor="calculation_method">Metode Perhitungan</Label>
+                  <select
+                    id="calculation_method"
+                    data-testid="select-calculation-method"
+                    value={settings?.calculation_method || "ISNA"}
+                    onChange={(e) => setSettings({...settings, calculation_method: e.target.value})}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="ISNA">ISNA</option>
+                    <option value="MWL">MWL (Muslim World League)</option>
+                    <option value="EGYPTIAN">Egyptian General Authority</option>
+                    <option value="KARACHI">University of Islamic Sciences, Karachi</option>
+                    <option value="MAKKAH">Umm Al-Qura University, Makkah</option>
+                    <option value="TEHRAN">Institute of Geophysics, University of Tehran</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <Label htmlFor="imsya_offset">Waktu Imsya (menit sebelum Subuh)</Label>
+                  <Input
+                    id="imsya_offset"
+                    type="number"
+                    min="5"
+                    max="30"
+                    data-testid="input-imsya-offset"
+                    value={settings?.imsya_offset || 10}
+                    onChange={(e) => setSettings({...settings, imsya_offset: parseInt(e.target.value)})}
+                  />
+                  <span className="text-xs text-gray-500">Contoh: 10 berarti Imsya 10 menit sebelum Subuh</span>
+                </div>
+
+                <div className="form-group">
+                  <Label>Waktu Iqomah (menit setelah Adzan)</Label>
+                  <div className="grid grid-cols-2 gap-3 mt-2">
+                    <div>
+                      <Label htmlFor="iqomah_fajr" className="text-sm">Subuh</Label>
+                      <Input
+                        id="iqomah_fajr"
+                        type="number"
+                        min="5"
+                        max="30"
+                        value={settings?.iqomah_delays?.fajr || 15}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          iqomah_delays: {...settings.iqomah_delays, fajr: parseInt(e.target.value)}
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="iqomah_dhuhr" className="text-sm">Dzuhur</Label>
+                      <Input
+                        id="iqomah_dhuhr"
+                        type="number"
+                        min="5"
+                        max="30"
+                        value={settings?.iqomah_delays?.dhuhr || 10}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          iqomah_delays: {...settings.iqomah_delays, dhuhr: parseInt(e.target.value)}
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="iqomah_asr" className="text-sm">Ashar</Label>
+                      <Input
+                        id="iqomah_asr"
+                        type="number"
+                        min="5"
+                        max="30"
+                        value={settings?.iqomah_delays?.asr || 10}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          iqomah_delays: {...settings.iqomah_delays, asr: parseInt(e.target.value)}
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="iqomah_maghrib" className="text-sm">Maghrib</Label>
+                      <Input
+                        id="iqomah_maghrib"
+                        type="number"
+                        min="5"
+                        max="30"
+                        value={settings?.iqomah_delays?.maghrib || 5}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          iqomah_delays: {...settings.iqomah_delays, maghrib: parseInt(e.target.value)}
+                        })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="iqomah_isha" className="text-sm">Isya</Label>
+                      <Input
+                        id="iqomah_isha"
+                        type="number"
+                        min="5"
+                        max="30"
+                        value={settings?.iqomah_delays?.isha || 10}
+                        onChange={(e) => setSettings({
+                          ...settings,
+                          iqomah_delays: {...settings.iqomah_delays, isha: parseInt(e.target.value)}
+                        })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-group">
                   <Label htmlFor="background_image">URL Gambar Latar Belakang</Label>
                   <Input
                     id="background_image"
