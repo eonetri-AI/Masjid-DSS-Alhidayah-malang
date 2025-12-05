@@ -257,6 +257,35 @@ const DisplayView = () => {
           </Marquee>
         </div>
       )}
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="password-modal-overlay" data-testid="password-modal" onClick={() => setShowPasswordModal(false)}>
+          <div className="password-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Akses Panel Admin</h2>
+            <p>Tekan tombol 'S' 3x untuk membuka panel ini</p>
+            <form onSubmit={verifyPassword}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Masukkan password"
+                autoFocus
+                data-testid="password-input"
+              />
+              {passwordError && <p className="error-message">{passwordError}</p>}
+              <div className="modal-buttons">
+                <button type="submit" data-testid="submit-password-btn">Masuk</button>
+                <button type="button" onClick={() => {
+                  setShowPasswordModal(false);
+                  setPassword("");
+                  setPasswordError("");
+                }} data-testid="cancel-password-btn">Batal</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
