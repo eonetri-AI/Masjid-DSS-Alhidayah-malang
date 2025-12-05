@@ -189,26 +189,38 @@ const DisplayView = () => {
         {/* Header - Date & Time */}
         <div className="header-section" data-testid="header-section">
           <div className="date-time-card">
-            <div className="current-time" data-testid="current-time">
-              {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
-            </div>
-            <div className="dates" data-testid="dates">
-              <div className="gregorian-date">{prayerTimes.gregorian_date}</div>
-              <div className="hijri-date">{prayerTimes.hijri_date}</div>
-            </div>
-            {weather && (
-              <div className="weather-info" data-testid="weather-info">
-                <img 
-                  src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
-                  alt={weather.description}
-                  className="weather-icon"
-                />
-                <div className="weather-details">
-                  <div className="weather-temp">{weather.temperature}°C</div>
-                  <div className="weather-desc">{weather.description}</div>
-                </div>
+            <div className="date-time-left">
+              <div className="current-time" data-testid="current-time">
+                {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
               </div>
-            )}
+              <div className="dates" data-testid="dates">
+                <div className="gregorian-date">{prayerTimes.gregorian_date}</div>
+                <div className="hijri-date">{prayerTimes.hijri_date}</div>
+              </div>
+            </div>
+            <div className="date-time-right">
+              {settings?.city_name && (
+                <div className="city-badge-display" data-testid="city-badge-display">
+                  <svg className="city-icon" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                  <span className="city-name">{settings.city_name}</span>
+                </div>
+              )}
+              {weather && (
+                <div className="weather-info" data-testid="weather-info">
+                  <img 
+                    src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+                    alt={weather.description}
+                    className="weather-icon"
+                  />
+                  <div className="weather-details">
+                    <div className="weather-temp">{weather.temperature}°C</div>
+                    <div className="weather-desc">{weather.description}</div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
