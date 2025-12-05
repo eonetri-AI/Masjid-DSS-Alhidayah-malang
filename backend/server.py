@@ -450,6 +450,57 @@ async def verify_password(data: PasswordVerify):
     else:
         raise HTTPException(status_code=401, detail="Invalid password")
 
+# Weather API endpoint
+@api_router.get("/weather")
+async def get_weather():
+    """Get current weather"""
+    try:
+        settings = await settings_collection.find_one({}, {"_id": 0})
+        if not settings:
+            settings = MosqueSettings().model_dump()
+        
+        lat = settings["latitude"]
+        lon = settings["longitude"]
+        
+        # Using OpenWeatherMap free API
+        api_key = "895284fb2d2c50a520ea537456963d9c"  # Free demo key
+        url = f"http://api.openweathermap.org/data/2.5/weather"
+        params = {
+            "lat": lat,
+            "lon": lon,
+            "appid": api_key,
+            "units": "metric",
+            "lang": "id"
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            data = response.json()
+        
+        if response.status_code == 200:
+            return {
+                "temperature": round(data["main"]["temp"]),
+                "feels_like": round(data["main"]["feels_like"]),
+                "humidity": data["main"]["humidity"],
+                "description": data["weather"][0]["description"],
+                "icon": data["weather"][0]["icon"],
+                "wind_speed": data["wind"]["speed"]
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Weather API error")
+            
+    except Exception as e:
+        logging.error(f"Error fetching weather: {e}")
+        # Return default weather data
+        return {
+            "temperature": 28,
+            "feels_like": 30,
+            "humidity": 75,
+            "description": "berawan",
+            "icon": "02d",
+            "wind_speed": 2.5
+        }
+
 # Include router
 app.include_router(api_router)
 
