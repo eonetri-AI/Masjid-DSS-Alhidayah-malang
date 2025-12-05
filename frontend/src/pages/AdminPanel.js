@@ -380,13 +380,13 @@ const AdminPanel = () => {
         <TabsContent value="financial">
           <Card>
             <CardHeader>
-              <CardTitle>Financial Reports</CardTitle>
-              <CardDescription>Manage mosque financial information</CardDescription>
+              <CardTitle>Laporan Keuangan</CardTitle>
+              <CardDescription>Kelola informasi keuangan masjid</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={addFinancialReport} className="add-form">
                 <div className="form-group">
-                  <Label htmlFor="fin_title">Title</Label>
+                  <Label htmlFor="fin_title">Judul</Label>
                   <Input
                     id="fin_title"
                     name="title"
@@ -395,7 +395,7 @@ const AdminPanel = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="fin_amount">Amount (RM)</Label>
+                  <Label htmlFor="fin_amount">Jumlah (Rp)</Label>
                   <Input
                     id="fin_amount"
                     name="amount"
@@ -406,24 +406,24 @@ const AdminPanel = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="fin_period">Period</Label>
+                  <Label htmlFor="fin_period">Periode</Label>
                   <Input
                     id="fin_period"
                     name="period"
                     data-testid="input-financial-period"
-                    placeholder="e.g., January 2025"
+                    placeholder="contoh: Januari 2025"
                     required
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="fin_description">Description</Label>
+                  <Label htmlFor="fin_description">Keterangan</Label>
                   <Textarea
                     id="fin_description"
                     name="description"
                     data-testid="input-financial-description"
                   />
                 </div>
-                <Button type="submit" data-testid="add-financial-btn">Add Report</Button>
+                <Button type="submit" data-testid="add-financial-btn">Tambah Laporan</Button>
               </form>
 
               <div className="items-list">
