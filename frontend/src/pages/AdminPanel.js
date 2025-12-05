@@ -359,6 +359,19 @@ const AdminPanel = () => {
                   />
                 </div>
 
+                <div className="form-group">
+                  <Label htmlFor="admin_password">Password Admin</Label>
+                  <Input
+                    id="admin_password"
+                    type="password"
+                    data-testid="input-admin-password"
+                    value={settings?.admin_password || ""}
+                    onChange={(e) => setSettings({...settings, admin_password: e.target.value})}
+                    placeholder="Password untuk akses pengaturan dari tampilan"
+                  />
+                  <span className="text-xs text-gray-500">Tekan 'S' 3x pada layar tampilan untuk akses panel admin</span>
+                </div>
+
                 <Button type="submit" className="submit-btn" data-testid="save-settings-btn">
                   Simpan Pengaturan
                 </Button>
