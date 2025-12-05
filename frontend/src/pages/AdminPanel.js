@@ -231,18 +231,18 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
-                  <Label htmlFor="timezone">Timezone</Label>
+                  <Label htmlFor="timezone">Zona Waktu</Label>
                   <Input
                     id="timezone"
                     data-testid="input-timezone"
                     value={settings?.timezone || ""}
                     onChange={(e) => setSettings({...settings, timezone: e.target.value})}
-                    placeholder="e.g., Asia/Kuala_Lumpur"
+                    placeholder="contoh: Asia/Jakarta"
                   />
                 </div>
 
                 <div className="form-group">
-                  <Label htmlFor="background_image">Background Image URL</Label>
+                  <Label htmlFor="background_image">URL Gambar Latar Belakang</Label>
                   <Input
                     id="background_image"
                     data-testid="input-background"
@@ -252,7 +252,7 @@ const AdminPanel = () => {
                 </div>
 
                 <Button type="submit" className="submit-btn" data-testid="save-settings-btn">
-                  Save Settings
+                  Simpan Pengaturan
                 </Button>
               </form>
             </CardContent>
