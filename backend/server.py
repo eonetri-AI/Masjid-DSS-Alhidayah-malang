@@ -121,7 +121,7 @@ class FinancialReportCreate(BaseModel):
 
 # ============== PRAYER TIMES SERVICE ==============
 
-def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, method: str = "ISNA") -> Dict:
+def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, method: str = "ISNA", imsya_offset: int = 10) -> Dict:
     """Calculate prayer times using islamic_times library"""
     try:
         tz = pytz.timezone(tz_str)
@@ -149,8 +149,15 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
                 return time_str
             return "00:00"
         
+        # Calculate Imsya (10 minutes before Fajr)
+        fajr_time = format_time(prayer_times.get("fajr", "04:30"))
+        fajr_dt = datetime.strptime(fajr_time, "%H:%M")
+        imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
+        imsya_time = imsya_dt.strftime("%H:%M")
+        
         return {
-            "fajr": format_time(prayer_times.get("fajr", "05:30")),
+            "fajr": fajr_time,
+            "imsya": imsya_time,
             "sunrise": format_time(prayer_times.get("sunrise", "07:00")),
             "dhuhr": format_time(prayer_times.get("zuhr", "13:00")),
             "asr": format_time(prayer_times.get("asr", "16:30")),
@@ -168,8 +175,15 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
+        
+        # Default Imsya calculation
+        fajr_dt = datetime.strptime("04:30", "%H:%M")
+        imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
+        imsya_time = imsya_dt.strftime("%H:%M")
+        
         return {
             "fajr": "04:30",
+            "imsya": imsya_time,
             "sunrise": "05:45",
             "dhuhr": "11:45",
             "asr": "15:15",
