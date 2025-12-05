@@ -317,7 +317,7 @@ async def get_prayer_times():
         settings = MosqueSettings().model_dump()
     
     # Calculate prayer times
-    times = calculate_prayer_times(
+    times = await calculate_prayer_times_aladhan(
         settings["latitude"],
         settings["longitude"],
         settings["timezone"],
