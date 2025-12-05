@@ -58,6 +58,8 @@ class MosqueSettings(BaseModel):
 
 class MosqueSettingsUpdate(BaseModel):
     mosque_name: Optional[str] = None
+    mosque_address: Optional[str] = None
+    mosque_logo: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     timezone: Optional[str] = None
