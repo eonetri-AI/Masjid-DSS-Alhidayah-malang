@@ -285,7 +285,7 @@ async def get_prayer_times():
     
     return PrayerTimesResponse(
         fajr=times["fajr"],
-        imsya=times["fajr"],  # Imsya typically same as Fajr
+        imsya=times["imsya"],
         syuruq=times["sunrise"],
         dhuhr=times["dhuhr"],
         asr=times["asr"],
