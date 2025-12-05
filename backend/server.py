@@ -39,6 +39,7 @@ class MosqueSettings(BaseModel):
     mosque_name: str = "Masjid Al-Noor"
     mosque_address: str = "Jl. Contoh No. 123, Kota Malang"
     mosque_logo: str = ""
+    city_name: str = "Malang"
     latitude: float = 3.139
     longitude: float = 101.6869
     timezone: str = "Asia/Kuala_Lumpur"
@@ -55,6 +56,7 @@ class MosqueSettings(BaseModel):
     })
     theme: str = "midnight"
     background_image: str = ""
+    makkah_embed_url: str = ""
     admin_password: str = "admin123"
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
