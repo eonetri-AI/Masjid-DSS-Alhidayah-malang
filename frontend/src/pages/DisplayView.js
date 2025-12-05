@@ -76,8 +76,8 @@ const DisplayView = () => {
   };
 
   const getPrayerArray = () => [
-    { name: "Subuh", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr },
     { name: "Imsya", time: prayerTimes?.imsya, iqomah: null },
+    { name: "Subuh", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr },
     { name: "Syuruq", time: prayerTimes?.syuruq, iqomah: null },
     { name: "Dzuhur", time: prayerTimes?.dhuhr, iqomah: prayerTimes?.iqomah_times?.dhuhr },
     { name: "Ashar", time: prayerTimes?.asr, iqomah: prayerTimes?.iqomah_times?.asr },
