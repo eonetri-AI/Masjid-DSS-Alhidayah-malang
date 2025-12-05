@@ -113,7 +113,7 @@
 
 .countdown-number {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10rem;
+  font-size: 6rem;
   font-weight: 900;
   line-height: 1;
   color: #F8FAFC;
@@ -121,7 +121,7 @@
 }
 
 .countdown-separator {
-  font-size: 8rem;
+  font-size: 5rem;
   color: #94A3B8;
 }
 
