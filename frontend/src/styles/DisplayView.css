@@ -123,15 +123,15 @@
 
 /* Countdown Section */
 .countdown-section {
-  grid-column: span 5;
+  grid-column: 1 / 6;
   grid-row: 3 / 5;
 }
 
 .countdown-card {
   background: rgba(15, 23, 42, 0.8);
   border: 2px solid rgba(212, 175, 55, 0.3);
-  border-radius: 1rem;
-  padding: 2rem;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -142,7 +142,7 @@
 }
 
 .countdown-label {
-  font-size: 1rem;
+  font-size: 0.85rem;
   letter-spacing: 0.2em;
   color: #94A3B8;
   text-transform: uppercase;
@@ -150,10 +150,10 @@
 }
 
 .next-prayer-name {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
   color: #D4AF37;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   letter-spacing: -0.02em;
 }
 
@@ -166,7 +166,7 @@
 
 .countdown-number {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: 900;
   line-height: 1;
   color: #F8FAFC;
@@ -174,12 +174,12 @@
 }
 
 .countdown-separator {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: #94A3B8;
 }
 
 .countdown-sublabel {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #94A3B8;
   letter-spacing: 0.1em;
 }
