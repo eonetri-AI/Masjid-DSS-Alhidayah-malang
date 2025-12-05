@@ -127,14 +127,13 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         
-        # Create location object - use explicit timezone instead of find_local_tz
+        # Create location object
         location = ITLocation(
             latitude=latitude,
             longitude=longitude,
             elevation=0,
             date=now,
-            method=method,
-            timezone=tz_str
+            method=method
         )
         
         # Get prayer times
