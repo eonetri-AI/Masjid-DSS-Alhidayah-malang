@@ -64,6 +64,10 @@ class MosqueSettingsUpdate(BaseModel):
     iqomah_delays: Optional[Dict[str, int]] = None
     theme: Optional[str] = None
     background_image: Optional[str] = None
+    admin_password: Optional[str] = None
+
+class PasswordVerify(BaseModel):
+    password: str
 
 class PrayerTimesResponse(BaseModel):
     fajr: str
