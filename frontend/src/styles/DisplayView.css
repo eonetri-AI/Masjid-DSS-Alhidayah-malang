@@ -23,9 +23,11 @@
   z-index: 1;
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 1.5rem;
-  padding: 2rem;
-  min-height: calc(100vh - 100px);
+  grid-template-rows: auto auto 1fr auto;
+  gap: 1rem;
+  padding: 1.5rem;
+  height: calc(100vh - 80px);
+  overflow: hidden;
 }
 
 /* Header Section */
