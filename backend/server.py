@@ -252,8 +252,6 @@ async def get_prayer_times():
         iqomah_time = adhan_time + timedelta(minutes=delay)
         iqomah_times[prayer] = iqomah_time.strftime("%H:%M")
     
-    from datetime import timedelta
-    
     return PrayerTimesResponse(
         fajr=times["fajr"],
         imsya=times["fajr"],  # Imsya typically same as Fajr
