@@ -349,14 +349,46 @@ async def get_prayer_times():
     if not settings:
         settings = MosqueSettings().model_dump()
     
-    # Calculate prayer times using Aladhan API
-    times = await calculate_prayer_times_aladhan(
-        settings["latitude"],
-        settings["longitude"],
-        settings["timezone"],
-        settings["calculation_method"],
-        settings.get("imsya_offset", 10)
-    )
+    # Check if using manual times
+    if settings.get("use_manual_times") and settings.get("manual_prayer_times"):
+        # Use manual prayer times
+        manual_times = settings["manual_prayer_times"]
+        tz = pytz.timezone(settings["timezone"])
+        now = datetime.now(tz)
+        
+        # Calculate Imsya from Fajr
+        fajr_time = manual_times.get("fajr", "04:30")
+        fajr_dt = datetime.strptime(fajr_time, "%H:%M")
+        imsya_offset = settings.get("imsya_offset", 10)
+        imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
+        imsya_time = imsya_dt.strftime("%H:%M")
+        
+        # Convert Gregorian to Hijri
+        hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
+        hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
+        
+        times = {
+            "fajr": manual_times.get("fajr", "04:30"),
+            "imsya": imsya_time,
+            "sunrise": manual_times.get("sunrise", "05:45"),
+            "dhuhr": manual_times.get("dhuhr", "11:45"),
+            "asr": manual_times.get("asr", "15:15"),
+            "maghrib": manual_times.get("maghrib", "17:45"),
+            "isha": manual_times.get("isha", "19:00"),
+            "gregorian_date": now.strftime("%A, %d %B %Y"),
+            "hijri_date": hijri_str,
+            "current_time": now.strftime("%H:%M:%S")
+        }
+        logging.info("Using manual prayer times")
+    else:
+        # Calculate prayer times using Aladhan API
+        times = await calculate_prayer_times_aladhan(
+            settings["latitude"],
+            settings["longitude"],
+            settings["timezone"],
+            settings["calculation_method"],
+            settings.get("imsya_offset", 10)
+        )
     
     # Get next prayer info
     prayer_info = get_next_prayer_info(times, settings["iqomah_delays"])
