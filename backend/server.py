@@ -519,6 +519,57 @@ async def verify_password(data: PasswordVerify):
     else:
         raise HTTPException(status_code=401, detail="Invalid password")
 
+# City coordinates endpoint
+@api_router.get("/cities")
+async def get_cities():
+    """Get list of cities with coordinates"""
+    cities = {
+        "Jakarta": {"lat": -6.2088, "lon": 106.8456, "tz": "Asia/Jakarta"},
+        "Bandung": {"lat": -6.9175, "lon": 107.6191, "tz": "Asia/Jakarta"},
+        "Yogyakarta": {"lat": -7.7956, "lon": 110.3695, "tz": "Asia/Jakarta"},
+        "Solo": {"lat": -7.5505, "lon": 110.8283, "tz": "Asia/Jakarta"},
+        "Semarang": {"lat": -6.9932, "lon": 110.4203, "tz": "Asia/Jakarta"},
+        "Surabaya": {"lat": -7.2575, "lon": 112.7521, "tz": "Asia/Jakarta"},
+        "Malang": {"lat": -7.9666, "lon": 112.6326, "tz": "Asia/Jakarta"},
+        "Kediri": {"lat": -7.8167, "lon": 112.0167, "tz": "Asia/Jakarta"},
+        "Jombang": {"lat": -7.5458, "lon": 112.2333, "tz": "Asia/Jakarta"},
+        "Blitar": {"lat": -8.0983, "lon": 112.1681, "tz": "Asia/Jakarta"},
+        "Madiun": {"lat": -7.6298, "lon": 111.5239, "tz": "Asia/Jakarta"},
+        "Ponorogo": {"lat": -7.8664, "lon": 111.4625, "tz": "Asia/Jakarta"},
+        "Pasuruan": {"lat": -7.6453, "lon": 112.9075, "tz": "Asia/Jakarta"},
+        "Probolinggo": {"lat": -7.7543, "lon": 113.2159, "tz": "Asia/Jakarta"},
+        "Jember": {"lat": -8.1724, "lon": 113.6997, "tz": "Asia/Jakarta"},
+        "Banyuwangi": {"lat": -8.2193, "lon": 114.3675, "tz": "Asia/Jakarta"}
+    }
+    return cities
+
+# File upload endpoint
+from fastapi import UploadFile, File
+import base64
+
+@api_router.post("/upload-file")
+async def upload_file(file: UploadFile = File(...)):
+    """Upload file and return base64 data URL"""
+    try:
+        contents = await file.read()
+        base64_encoded = base64.b64encode(contents).decode('utf-8')
+        
+        # Determine mime type
+        mime_type = file.content_type or "image/png"
+        
+        # Return as data URL
+        data_url = f"data:{mime_type};base64,{base64_encoded}"
+        
+        return {
+            "success": True,
+            "data_url": data_url,
+            "filename": file.filename,
+            "size": len(contents)
+        }
+    except Exception as e:
+        logging.error(f"Error uploading file: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Weather API endpoint
 @api_router.get("/weather")
 async def get_weather():
