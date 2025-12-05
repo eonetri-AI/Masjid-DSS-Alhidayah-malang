@@ -231,48 +231,77 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
 
 def get_next_prayer_info(prayer_times: Dict, iqomah_delays: Dict[str, int]) -> Dict:
     """Calculate next prayer and time remaining, or iqomah countdown if within prayer time"""
-    from datetime import datetime, timedelta
-    
     prayer_names = ["fajr", "dhuhr", "asr", "maghrib", "isha"]
-    current_time = datetime.strptime(prayer_times["current_time"], "%H:%M:%S").time()
-    now_dt = datetime.combine(datetime.today(), current_time)
+    
+    # Parse current time with full datetime
+    current_str = prayer_times["current_time"]  # Format: HH:MM:SS
+    now_dt = datetime.strptime(current_str, "%H:%M:%S")
+    today = datetime.today().date()
+    now_full = datetime.combine(today, now_dt.time())
     
     # Check if we're in iqomah period (between adhan and iqomah)
     for prayer in prayer_names:
-        adhan_time = datetime.strptime(prayer_times[prayer], "%H:%M").time()
-        adhan_dt = datetime.combine(datetime.today(), adhan_time)
-        
-        delay = iqomah_delays.get(prayer, 10)
-        iqomah_dt = adhan_dt + timedelta(minutes=delay)
-        
-        # If current time is between adhan and iqomah
-        if adhan_dt <= now_dt < iqomah_dt:
-            diff_seconds = (iqomah_dt - now_dt).total_seconds()
-            return {
-                "prayer": prayer,
-                "minutes_until": int(diff_seconds / 60),
-                "is_iqomah_countdown": True
-            }
+        try:
+            adhan_str = prayer_times[prayer]  # Format: HH:MM
+            adhan_time = datetime.strptime(adhan_str, "%H:%M").time()
+            adhan_dt = datetime.combine(today, adhan_time)
+            
+            delay = iqomah_delays.get(prayer, 10)
+            iqomah_dt = adhan_dt + timedelta(minutes=delay)
+            
+            # If current time is between adhan and iqomah
+            if adhan_dt <= now_full < iqomah_dt:
+                diff_seconds = (iqomah_dt - now_full).total_seconds()
+                return {
+                    "prayer": prayer,
+                    "minutes_until": max(0, int(diff_seconds / 60)),
+                    "seconds_until": max(0, int(diff_seconds)),
+                    "is_iqomah_countdown": True
+                }
+        except Exception as e:
+            logging.error(f"Error checking iqomah for {prayer}: {e}")
+            continue
     
-    # Otherwise find next prayer
+    # Otherwise find next prayer (adhan countdown)
     for prayer in prayer_names:
-        prayer_time = datetime.strptime(prayer_times[prayer], "%H:%M").time()
-        prayer_dt = datetime.combine(datetime.today(), prayer_time)
-        
-        if prayer_dt > now_dt:
-            diff_seconds = (prayer_dt - now_dt).total_seconds()
-            return {
-                "prayer": prayer,
-                "minutes_until": int(diff_seconds / 60),
-                "is_iqomah_countdown": False
-            }
+        try:
+            prayer_str = prayer_times[prayer]
+            prayer_time = datetime.strptime(prayer_str, "%H:%M").time()
+            prayer_dt = datetime.combine(today, prayer_time)
+            
+            if prayer_dt > now_full:
+                diff_seconds = (prayer_dt - now_full).total_seconds()
+                return {
+                    "prayer": prayer,
+                    "minutes_until": max(0, int(diff_seconds / 60)),
+                    "seconds_until": max(0, int(diff_seconds)),
+                    "is_iqomah_countdown": False
+                }
+        except Exception as e:
+            logging.error(f"Error checking prayer {prayer}: {e}")
+            continue
     
     # If no prayer found today, next is Fajr tomorrow
-    return {
-        "prayer": "fajr",
-        "minutes_until": 0,
-        "is_iqomah_countdown": False
-    }
+    try:
+        fajr_str = prayer_times["fajr"]
+        fajr_time = datetime.strptime(fajr_str, "%H:%M").time()
+        tomorrow = today + timedelta(days=1)
+        fajr_tomorrow = datetime.combine(tomorrow, fajr_time)
+        diff_seconds = (fajr_tomorrow - now_full).total_seconds()
+        
+        return {
+            "prayer": "fajr",
+            "minutes_until": max(0, int(diff_seconds / 60)),
+            "seconds_until": max(0, int(diff_seconds)),
+            "is_iqomah_countdown": False
+        }
+    except Exception:
+        return {
+            "prayer": "fajr",
+            "minutes_until": 0,
+            "seconds_until": 0,
+            "is_iqomah_countdown": False
+        }
 
 # ============== API ENDPOINTS ==============
 
