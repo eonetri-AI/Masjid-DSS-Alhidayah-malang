@@ -81,24 +81,25 @@
 
 /* Header Section */
 .header-section {
-  grid-column: span 12;
-  grid-row: 2;
+  grid-column: 1 / -1;
+  grid-row: 2 / 3;
 }
 
 .date-time-card {
   background: rgba(15, 23, 42, 0.5);
   border: 1px solid rgba(148, 163, 184, 0.1);
-  border-radius: 0.75rem;
-  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  min-height: 60px;
 }
 
 .current-time {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.05em;
   color: #D4AF37;
@@ -109,13 +110,13 @@
 }
 
 .gregorian-date {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #F8FAFC;
 }
 
 .hijri-date {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #94A3B8;
   margin-top: 0.25rem;
 }
