@@ -391,10 +391,19 @@ async def get_financial_reports():
 
 @api_router.post("/financial-reports", response_model=FinancialReport)
 async def create_financial_report(report: FinancialReportCreate):
-    """Create new financial report"""
-    new_report = FinancialReport(**report.model_dump())
+    """Create new financial report with automatic calculation"""
+    # Calculate Saldo Pekan Ini automatically
+    saldo_pekan_ini = report.saldo_pekan_lalu + report.infaq_pekan_ini - report.pengeluaran
+    
+    new_report = FinancialReport(
+        **report.model_dump(),
+        saldo_pekan_ini=saldo_pekan_ini
+    )
     report_dict = new_report.model_dump()
     report_dict["created_at"] = report_dict["created_at"].isoformat()
+    
+    # Delete old report and insert new one (keep only latest)
+    await financial_reports_collection.delete_many({})
     await financial_reports_collection.insert_one(report_dict)
     return new_report
 
