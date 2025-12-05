@@ -202,11 +202,23 @@
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
   backdrop-filter: blur(12px);
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1.5rem;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   min-height: 60px;
+  gap: 1.5rem;
+}
+
+.date-time-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.date-time-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .current-time {
@@ -218,7 +230,7 @@
 }
 
 .dates {
-  text-align: center;
+  text-align: left;
 }
 
 .gregorian-date {
