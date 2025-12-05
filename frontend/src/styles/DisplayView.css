@@ -177,7 +177,7 @@
 /* Prayer Times Section */
 .prayer-times-section {
   grid-column: span 7;
-  grid-row: 2 / 4;
+  grid-row: 3 / 5;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
