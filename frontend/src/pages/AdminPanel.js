@@ -180,10 +180,10 @@ const AdminPanel = () => {
 
       <Tabs defaultValue="settings" className="admin-tabs">
         <TabsList className="admin-tabs-list">
-          <TabsTrigger value="settings" data-testid="tab-settings">Settings</TabsTrigger>
-          <TabsTrigger value="announcements" data-testid="tab-announcements">Announcements</TabsTrigger>
-          <TabsTrigger value="quran" data-testid="tab-quran">Quran Verses</TabsTrigger>
-          <TabsTrigger value="financial" data-testid="tab-financial">Financial</TabsTrigger>
+          <TabsTrigger value="settings" data-testid="tab-settings">Pengaturan</TabsTrigger>
+          <TabsTrigger value="announcements" data-testid="tab-announcements">Pengumuman</TabsTrigger>
+          <TabsTrigger value="quran" data-testid="tab-quran">Ayat Al-Quran</TabsTrigger>
+          <TabsTrigger value="financial" data-testid="tab-financial">Keuangan</TabsTrigger>
         </TabsList>
 
         {/* Settings Tab */}
