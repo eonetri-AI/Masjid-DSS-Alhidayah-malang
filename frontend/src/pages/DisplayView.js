@@ -45,7 +45,7 @@ const DisplayView = () => {
 
   // Calculate countdown
   useEffect(() => {
-    if (prayerTimes && prayerTimes.time_until_next) {
+    if (prayerTimes && prayerTimes.time_until_next !== undefined) {
       const interval = setInterval(() => {
         const now = new Date();
         const totalSeconds = prayerTimes.time_until_next * 60 - (now.getSeconds());
@@ -57,6 +57,49 @@ const DisplayView = () => {
       return () => clearInterval(interval);
     }
   }, [prayerTimes]);
+
+  // Handle settings icon click (3 clicks to show password modal)
+  useEffect(() => {
+    let clickCount = 0;
+    let clickTimer = null;
+
+    const handleKeyPress = (e) => {
+      if (e.key === 's' || e.key === 'S') {
+        clickCount++;
+        
+        if (clickCount === 1) {
+          clickTimer = setTimeout(() => {
+            clickCount = 0;
+          }, 2000);
+        }
+
+        if (clickCount === 3) {
+          clearTimeout(clickTimer);
+          clickCount = 0;
+          setShowPasswordModal(true);
+        }
+      }
+    };
+
+    window.addEventListener('keypress', handleKeyPress);
+    return () => {
+      window.removeEventListener('keypress', handleKeyPress);
+      if (clickTimer) clearTimeout(clickTimer);
+    };
+  }, []);
+
+  const verifyPassword = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API}/verify-password`, { password });
+      if (response.data.success) {
+        window.location.href = '/admin';
+      }
+    } catch (error) {
+      setPasswordError("Password salah. Silakan coba lagi.");
+      setPassword("");
+    }
+  };
 
   const fetchData = async () => {
     try {
