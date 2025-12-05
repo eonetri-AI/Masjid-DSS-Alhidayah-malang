@@ -169,12 +169,12 @@ const AdminPanel = () => {
       <Toaster />
       
       <div className="admin-header">
-        <h1 className="admin-title" data-testid="admin-title">Mosque Display Admin</h1>
+        <h1 className="admin-title" data-testid="admin-title">Admin Tampilan Masjid</h1>
         <Button 
           onClick={() => window.open('/display', '_blank')}
           data-testid="view-display-btn"
         >
-          View Display
+          Lihat Tampilan
         </Button>
       </div>
 
