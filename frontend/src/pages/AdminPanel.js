@@ -205,6 +205,33 @@ const AdminPanel = () => {
                   />
                 </div>
 
+                <div className="form-group">
+                  <Label htmlFor="mosque_address">Alamat Masjid</Label>
+                  <Textarea
+                    id="mosque_address"
+                    data-testid="input-mosque-address"
+                    value={settings?.mosque_address || ""}
+                    onChange={(e) => setSettings({...settings, mosque_address: e.target.value})}
+                    rows={2}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <Label htmlFor="mosque_logo">URL Logo Masjid</Label>
+                  <Input
+                    id="mosque_logo"
+                    data-testid="input-mosque-logo"
+                    value={settings?.mosque_logo || ""}
+                    onChange={(e) => setSettings({...settings, mosque_logo: e.target.value})}
+                    placeholder="https://example.com/logo.png"
+                  />
+                  {settings?.mosque_logo && (
+                    <div className="logo-preview">
+                      <img src={settings.mosque_logo} alt="Preview Logo" />
+                    </div>
+                  )}
+                </div>
+
                 <div className="form-row">
                   <div className="form-group">
                     <Label htmlFor="latitude">Latitude</Label>
