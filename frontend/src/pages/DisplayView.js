@@ -175,7 +175,7 @@ const DisplayView = () => {
               {financialReports.slice(0, 3).map((report, idx) => (
                 <div key={idx} className="financial-item" data-testid={`financial-item-${idx}`}>
                   <div className="financial-label">{report.title}</div>
-                  <div className="financial-amount">RM {report.amount.toLocaleString()}</div>
+                  <div className="financial-amount">Rp {report.amount.toLocaleString('id-ID')}</div>
                 </div>
               ))}
             </div>
