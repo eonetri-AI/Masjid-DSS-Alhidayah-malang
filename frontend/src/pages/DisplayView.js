@@ -185,7 +185,7 @@ const DisplayView = () => {
         {/* Mecca Live Stream */}
         <div className="mecca-section" data-testid="mecca-section">
           <div className="mecca-card">
-            <div className="mecca-label">Mecca Live</div>
+            <div className="mecca-label">Makkah Live</div>
             <img 
               src="https://images.unsplash.com/photo-1542521148-51306e7ffc1e?q=85&w=1920&auto=format&fit=crop"
               alt="Mecca"
