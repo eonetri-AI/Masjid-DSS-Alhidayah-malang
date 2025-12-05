@@ -51,6 +51,7 @@ class MosqueSettings(BaseModel):
     })
     theme: str = "midnight"
     background_image: str = ""
+    admin_password: str = "admin123"
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class MosqueSettingsUpdate(BaseModel):
