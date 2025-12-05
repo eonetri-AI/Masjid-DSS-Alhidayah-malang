@@ -161,6 +161,8 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
         imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
         imsya_time = imsya_dt.strftime("%H:%M")
         
+        logging.info(f"Fajr: {fajr_time_str}, Imsya offset: {imsya_offset}, Imsya: {imsya_time}")
+        
         return {
             "fajr": fajr_time_str,
             "imsya": imsya_time,
