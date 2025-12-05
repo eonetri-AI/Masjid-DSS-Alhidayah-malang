@@ -64,6 +64,7 @@ class MosqueSettingsUpdate(BaseModel):
     mosque_name: Optional[str] = None
     mosque_address: Optional[str] = None
     mosque_logo: Optional[str] = None
+    city_name: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     timezone: Optional[str] = None
@@ -74,6 +75,7 @@ class MosqueSettingsUpdate(BaseModel):
     iqomah_delays: Optional[Dict[str, int]] = None
     theme: Optional[str] = None
     background_image: Optional[str] = None
+    makkah_embed_url: Optional[str] = None
     admin_password: Optional[str] = None
 
 class PasswordVerify(BaseModel):
