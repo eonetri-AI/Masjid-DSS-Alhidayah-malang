@@ -233,7 +233,7 @@
 /* Quran Section */
 .quran-section {
   grid-column: span 6;
-  grid-row: 4;
+  grid-row: 5;
 }
 
 .quran-card {
