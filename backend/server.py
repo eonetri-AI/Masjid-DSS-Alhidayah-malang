@@ -66,6 +66,8 @@ class MosqueSettingsUpdate(BaseModel):
     longitude: Optional[float] = None
     timezone: Optional[str] = None
     calculation_method: Optional[str] = None
+    use_manual_times: Optional[bool] = None
+    manual_prayer_times: Optional[Dict[str, str]] = None
     imsya_offset: Optional[int] = None
     iqomah_delays: Optional[Dict[str, int]] = None
     theme: Optional[str] = None
