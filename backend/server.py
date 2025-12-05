@@ -138,38 +138,37 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
             method=method
         )
         
-        # Get prayer times - returns a dict
+        # Get prayer times - returns PrayerTimes object
         prayer_times = location.prayer_times()
         
         # Convert Gregorian to Hijri
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
         hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
         
-        # Extract times - prayer_times might be dict or object with attributes
-        fajr_time = prayer_times.fajr if hasattr(prayer_times, 'fajr') else prayer_times.get("fajr", "04:30")
-        sunrise_time = prayer_times.sunrise if hasattr(prayer_times, 'sunrise') else prayer_times.get("sunrise", "05:45")
-        dhuhr_time = prayer_times.zuhr if hasattr(prayer_times, 'zuhr') else prayer_times.get("zuhr", "11:45")
-        asr_time = prayer_times.asr if hasattr(prayer_times, 'asr') else prayer_times.get("asr", "15:15")
-        maghrib_time = prayer_times.maghrib if hasattr(prayer_times, 'maghrib') else prayer_times.get("maghrib", "17:45")
-        isha_time = prayer_times.isha if hasattr(prayer_times, 'isha') else prayer_times.get("isha", "19:00")
+        # Extract time from Prayer objects
+        def extract_time(prayer_obj):
+            if hasattr(prayer_obj, 'time'):
+                dt = prayer_obj.time
+                return dt.strftime("%H:%M")
+            return "00:00"
+        
+        # Get Fajr time for Imsya calculation
+        fajr_prayer = prayer_times.fajr
+        fajr_time_str = extract_time(fajr_prayer)
+        fajr_dt = datetime.strptime(fajr_time_str, "%H:%M")
         
         # Calculate Imsya (offset minutes before Fajr)
-        if isinstance(fajr_time, str):
-            fajr_dt = datetime.strptime(fajr_time, "%H:%M")
-        else:
-            fajr_dt = datetime.strptime(str(fajr_time), "%H:%M")
-        
         imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
         imsya_time = imsya_dt.strftime("%H:%M")
         
         return {
-            "fajr": str(fajr_time),
+            "fajr": fajr_time_str,
             "imsya": imsya_time,
-            "sunrise": str(sunrise_time),
-            "dhuhr": str(dhuhr_time),
-            "asr": str(asr_time),
-            "maghrib": str(maghrib_time),
-            "isha": str(isha_time),
+            "sunrise": extract_time(prayer_times.sunrise),
+            "dhuhr": extract_time(prayer_times.zuhr),
+            "asr": extract_time(prayer_times.asr),
+            "maghrib": extract_time(prayer_times.maghrib),
+            "isha": extract_time(prayer_times.isha),
             "gregorian_date": now.strftime("%A, %d %B %Y"),
             "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
