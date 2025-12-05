@@ -1,0 +1,210 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Marquee from "react-fast-marquee";
+import moment from "moment-hijri";
+import "@/styles/DisplayView.css";
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
+
+const DisplayView = () => {
+  const [prayerTimes, setPrayerTimes] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [quranVerses, setQuranVerses] = useState([]);
+  const [currentVerse, setCurrentVerse] = useState(0);
+  const [financialReports, setFinancialReports] = useState([]);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [settings, setSettings] = useState(null);
+  const [countdown, setCountdown] = useState({ minutes: 0, seconds: 0 });
+
+  // Fetch all data
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 60000); // Refresh every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update current time
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Rotate Quran verses
+  useEffect(() => {
+    if (quranVerses.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentVerse((prev) => (prev + 1) % quranVerses.length);
+      }, 15000); // Change verse every 15 seconds
+      return () => clearInterval(interval);
+    }
+  }, [quranVerses]);
+
+  // Calculate countdown
+  useEffect(() => {
+    if (prayerTimes && prayerTimes.time_until_next) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const totalSeconds = prayerTimes.time_until_next * 60 - (now.getSeconds());
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        setCountdown({ minutes, seconds });
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [prayerTimes]);
+
+  const fetchData = async () => {
+    try {
+      const [timesRes, announcementsRes, versesRes, reportsRes, settingsRes] = await Promise.all([
+        axios.get(`${API}/prayer-times`),
+        axios.get(`${API}/announcements`),
+        axios.get(`${API}/quran-verses`),
+        axios.get(`${API}/financial-reports`),
+        axios.get(`${API}/settings`)
+      ]);
+
+      setPrayerTimes(timesRes.data);
+      setAnnouncements(announcementsRes.data);
+      setQuranVerses(versesRes.data);
+      setFinancialReports(reportsRes.data);
+      setSettings(settingsRes.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const getPrayerArray = () => [
+    { name: "Fajr", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr },
+    { name: "Syuruq", time: prayerTimes?.syuruq, iqomah: null },
+    { name: "Dhuhr", time: prayerTimes?.dhuhr, iqomah: prayerTimes?.iqomah_times?.dhuhr },
+    { name: "Asr", time: prayerTimes?.asr, iqomah: prayerTimes?.iqomah_times?.asr },
+    { name: "Maghrib", time: prayerTimes?.maghrib, iqomah: prayerTimes?.iqomah_times?.maghrib },
+    { name: "Isha", time: prayerTimes?.isha, iqomah: prayerTimes?.iqomah_times?.isha }
+  ];
+
+  if (!prayerTimes) {
+    return (
+      <div className="loading-screen" data-testid="loading-screen">
+        <div className="loading-spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="display-container" data-testid="display-container">
+      {/* Background */}
+      {settings?.background_image && (
+        <div 
+          className="background-overlay"
+          style={{ backgroundImage: `url(${settings.background_image})` }}
+        />
+      )}
+
+      {/* Main Grid */}
+      <div className="display-grid">
+        {/* Header - Date & Time */}
+        <div className="header-section" data-testid="header-section">
+          <div className="date-time-card">
+            <div className="current-time" data-testid="current-time">
+              {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
+            </div>
+            <div className="dates" data-testid="dates">
+              <div className="gregorian-date">{prayerTimes.gregorian_date}</div>
+              <div className="hijri-date">{prayerTimes.hijri_date}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Next Prayer Countdown */}
+        <div className="countdown-section" data-testid="countdown-section">
+          <div className="countdown-card">
+            <div className="countdown-label">NEXT PRAYER</div>
+            <div className="next-prayer-name" data-testid="next-prayer-name">
+              {prayerTimes.next_prayer?.toUpperCase()}
+            </div>
+            <div className="countdown-timer" data-testid="countdown-timer">
+              <span className="countdown-number">{String(countdown.minutes).padStart(2, '0')}</span>
+              <span className="countdown-separator">:</span>
+              <span className="countdown-number">{String(countdown.seconds).padStart(2, '0')}</span>
+            </div>
+            <div className="countdown-sublabel">until Adhan</div>
+          </div>
+        </div>
+
+        {/* Prayer Times Grid */}
+        <div className="prayer-times-section" data-testid="prayer-times-section">
+          {getPrayerArray().map((prayer, idx) => (
+            <div 
+              key={idx}
+              className={`prayer-card ${
+                prayer.name.toLowerCase() === prayerTimes.next_prayer ? 'active' : ''
+              }`}
+              data-testid={`prayer-card-${prayer.name.toLowerCase()}`}
+            >
+              <div className="prayer-name">{prayer.name}</div>
+              <div className="prayer-time">{prayer.time}</div>
+              {prayer.iqomah && (
+                <div className="iqomah-time">Iqomah: {prayer.iqomah}</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Quran Verse */}
+        {quranVerses.length > 0 && (
+          <div className="quran-section" data-testid="quran-section">
+            <div className="quran-card">
+              <div className="quran-arabic">{quranVerses[currentVerse]?.arabic}</div>
+              <div className="quran-translation">{quranVerses[currentVerse]?.translation}</div>
+              <div className="quran-reference">{quranVerses[currentVerse]?.reference}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Financial Report */}
+        {financialReports.length > 0 && (
+          <div className="financial-section" data-testid="financial-section">
+            <div className="financial-card">
+              <div className="financial-title">Financial Report</div>
+              {financialReports.slice(0, 3).map((report, idx) => (
+                <div key={idx} className="financial-item" data-testid={`financial-item-${idx}`}>
+                  <div className="financial-label">{report.title}</div>
+                  <div className="financial-amount">RM {report.amount.toLocaleString()}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Mecca Live Stream */}
+        <div className="mecca-section" data-testid="mecca-section">
+          <div className="mecca-card">
+            <div className="mecca-label">Mecca Live</div>
+            <img 
+              src="https://images.unsplash.com/photo-1542521148-51306e7ffc1e?q=85&w=1920&auto=format&fit=crop"
+              alt="Mecca"
+              className="mecca-image"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Announcements Ticker */}
+      {announcements.length > 0 && (
+        <div className="announcements-ticker" data-testid="announcements-ticker">
+          <Marquee speed={50} gradient={false}>
+            {announcements.map((ann, idx) => (
+              <span key={idx} className="announcement-text">
+                {ann.text} &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;
+              </span>
+            ))}
+          </Marquee>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DisplayView;

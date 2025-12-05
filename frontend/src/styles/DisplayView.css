@@ -1,0 +1,342 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+.display-container {
+  min-height: 100vh;
+  background: #020617;
+  color: #F8FAFC;
+  font-family: 'Manrope', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.background-overlay {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.15;
+  z-index: 0;
+}
+
+.display-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.5rem;
+  padding: 2rem;
+  min-height: calc(100vh - 100px);
+}
+
+/* Header Section */
+.header-section {
+  grid-column: span 12;
+}
+
+.date-time-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.current-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: #D4AF37;
+}
+
+.dates {
+  text-align: right;
+}
+
+.gregorian-date {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #F8FAFC;
+}
+
+.hijri-date {
+  font-size: 1.25rem;
+  color: #94A3B8;
+  margin-top: 0.25rem;
+}
+
+/* Countdown Section */
+.countdown-section {
+  grid-column: span 8;
+  grid-row: span 2;
+}
+
+.countdown-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 1.5rem;
+  padding: 3rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+.countdown-label {
+  font-size: 1.5rem;
+  letter-spacing: 0.2em;
+  color: #94A3B8;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.next-prayer-name {
+  font-size: 4rem;
+  font-weight: 800;
+  color: #D4AF37;
+  margin-bottom: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.countdown-timer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.countdown-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #F8FAFC;
+  letter-spacing: -0.05em;
+}
+
+.countdown-separator {
+  font-size: 8rem;
+  color: #94A3B8;
+}
+
+.countdown-sublabel {
+  font-size: 1.25rem;
+  color: #94A3B8;
+  letter-spacing: 0.1em;
+}
+
+/* Prayer Times Section */
+.prayer-times-section {
+  grid-column: span 4;
+  grid-row: span 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.prayer-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.prayer-card.active {
+  background: rgba(15, 23, 42, 0.8);
+  border: 2px solid rgba(212, 175, 55, 0.5);
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+  transform: scale(1.02);
+}
+
+.prayer-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #94A3B8;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.prayer-card.active .prayer-name {
+  color: #D4AF37;
+}
+
+.prayer-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #F8FAFC;
+  letter-spacing: -0.02em;
+}
+
+.iqomah-time {
+  font-size: 1rem;
+  color: #94A3B8;
+  margin-top: 0.5rem;
+}
+
+/* Quran Section */
+.quran-section {
+  grid-column: span 8;
+}
+
+.quran-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 1rem;
+  padding: 2rem;
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+
+.quran-arabic {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #F8FAFC;
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+  direction: rtl;
+}
+
+.quran-translation {
+  font-size: 1.25rem;
+  color: #94A3B8;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.quran-reference {
+  font-size: 1rem;
+  color: #D4AF37;
+  font-weight: 600;
+}
+
+/* Financial Section */
+.financial-section {
+  grid-column: span 4;
+}
+
+.financial-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  height: 100%;
+}
+
+.financial-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #D4AF37;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.financial-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.financial-item:last-child {
+  border-bottom: none;
+}
+
+.financial-label {
+  font-size: 1rem;
+  color: #94A3B8;
+  margin-bottom: 0.5rem;
+}
+
+.financial-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+/* Mecca Section */
+.mecca-section {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+
+.mecca-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 1rem;
+  padding: 1rem;
+  backdrop-filter: blur(12px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mecca-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #D4AF37;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mecca-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+}
+
+/* Announcements Ticker */
+.announcements-ticker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0F172A;
+  border-top: 2px solid rgba(212, 175, 55, 0.3);
+  padding: 1.5rem 0;
+  z-index: 100;
+}
+
+.announcement-text {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #F8FAFC;
+  white-space: nowrap;
+}
+
+/* Loading Screen */
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #020617;
+  color: #F8FAFC;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(212, 175, 55, 0.2);
+  border-top-color: #D4AF37;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
