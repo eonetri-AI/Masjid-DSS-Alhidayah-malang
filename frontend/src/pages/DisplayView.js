@@ -287,8 +287,9 @@ const DisplayView = () => {
                 src={settings.makkah_embed_url}
                 title="Makkah Live"
                 className="mecca-iframe"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
                 allowFullScreen
+                sandbox="allow-same-origin allow-scripts allow-presentation"
               />
             ) : (
               <img 
