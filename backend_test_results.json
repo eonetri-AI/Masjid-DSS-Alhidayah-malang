@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-12-05T07:31:08.703234",
+  "total_tests": 14,
+  "passed_tests": 14,
+  "failed_tests": 0,
+  "success_rate": 100.0,
+  "test_details": [
+    {
+      "test_name": "Get Prayer Times",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Prayer Times Response Structure",
+      "status": "PASSED",
+      "details": "All required fields present"
+    },
+    {
+      "test_name": "Iqomah Times Structure",
+      "status": "PASSED",
+      "details": "All iqomah times present"
+    },
+    {
+      "test_name": "Get Settings",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Update Settings",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Get Announcements",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Create Announcement",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Delete Announcement",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Get Quran Verses",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Create Quran Verse",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Delete Quran Verse",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Get Financial Reports",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Create Financial Report",
+      "status": "PASSED",
+      "details": "Status: 200"
+    },
+    {
+      "test_name": "Delete Financial Report",
+      "status": "PASSED",
+      "details": "Status: 200"
+    }
+  ],
+  "failed_tests_details": []
+}
