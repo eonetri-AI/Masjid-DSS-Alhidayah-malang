@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Amiri:wght@400;700&family=Cinzel:wght@400;600;700;800&display=swap');
 
+/* Dark Theme (Default - Midnight) */
 .display-container {
   min-height: 100vh;
   background: #020617;
@@ -9,6 +10,85 @@
   overflow: hidden;
 }
 
+/* Light Theme (Bright) */
+.display-container.theme-bright {
+  background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #FEF3C7 100%);
+  color: #0F172A;
+}
+
+.display-container.theme-bright .mosque-info-header,
+.display-container.theme-bright .date-time-card,
+.display-container.theme-bright .countdown-card,
+.display-container.theme-bright .prayer-card,
+.display-container.theme-bright .quran-card,
+.display-container.theme-bright .financial-card,
+.display-container.theme-bright .mecca-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.display-container.theme-bright .countdown-card {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+}
+
+.display-container.theme-bright .prayer-card.active {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.display-container.theme-bright .mosque-name,
+.display-container.theme-bright .countdown-label,
+.display-container.theme-bright .next-prayer-name,
+.display-container.theme-bright .prayer-card.active .prayer-name,
+.display-container.theme-bright .current-time,
+.display-container.theme-bright .financial-title,
+.display-container.theme-bright .quran-reference,
+.display-container.theme-bright .mecca-label,
+.display-container.theme-bright .financial-total .financial-label,
+.display-container.theme-bright .financial-total .financial-amount {
+  color: #1E40AF;
+}
+
+.display-container.theme-bright .mosque-address,
+.display-container.theme-bright .gregorian-date,
+.display-container.theme-bright .hijri-date,
+.display-container.theme-bright .prayer-name,
+.display-container.theme-bright .countdown-sublabel,
+.display-container.theme-bright .countdown-separator,
+.display-container.theme-bright .quran-translation,
+.display-container.theme-bright .financial-label,
+.display-container.theme-bright .iqomah-time {
+  color: #475569;
+}
+
+.display-container.theme-bright .countdown-number,
+.display-container.theme-bright .prayer-time,
+.display-container.theme-bright .quran-arabic,
+.display-container.theme-bright .financial-amount {
+  color: #0F172A;
+}
+
+.display-container.theme-bright .announcements-ticker {
+  background: #1E40AF;
+  border-top-color: rgba(59, 130, 246, 0.5);
+}
+
+.display-container.theme-bright .announcement-text {
+  color: #FFFFFF;
+}
+
+.display-container.theme-bright .mosque-logo {
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+.display-container.theme-bright .financial-total {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
 .background-overlay {
   position: absolute;
   inset: 0;
@@ -16,6 +96,10 @@
   background-position: center;
   opacity: 0.15;
   z-index: 0;
+}
+
+.display-container.theme-bright .background-overlay {
+  opacity: 0.08;
 }
 
 .display-grid {
