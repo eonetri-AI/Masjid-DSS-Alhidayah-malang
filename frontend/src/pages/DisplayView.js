@@ -76,12 +76,13 @@ const DisplayView = () => {
   };
 
   const getPrayerArray = () => [
-    { name: "Fajr", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr },
+    { name: "Subuh", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr },
+    { name: "Imsya", time: prayerTimes?.imsya, iqomah: null },
     { name: "Syuruq", time: prayerTimes?.syuruq, iqomah: null },
-    { name: "Dhuhr", time: prayerTimes?.dhuhr, iqomah: prayerTimes?.iqomah_times?.dhuhr },
-    { name: "Asr", time: prayerTimes?.asr, iqomah: prayerTimes?.iqomah_times?.asr },
+    { name: "Dzuhur", time: prayerTimes?.dhuhr, iqomah: prayerTimes?.iqomah_times?.dhuhr },
+    { name: "Ashar", time: prayerTimes?.asr, iqomah: prayerTimes?.iqomah_times?.asr },
     { name: "Maghrib", time: prayerTimes?.maghrib, iqomah: prayerTimes?.iqomah_times?.maghrib },
-    { name: "Isha", time: prayerTimes?.isha, iqomah: prayerTimes?.iqomah_times?.isha }
+    { name: "Isya", time: prayerTimes?.isha, iqomah: prayerTimes?.iqomah_times?.isha }
   ];
 
   if (!prayerTimes) {
