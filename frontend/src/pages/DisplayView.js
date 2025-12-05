@@ -282,11 +282,21 @@ const DisplayView = () => {
         <div className="mecca-section" data-testid="mecca-section">
           <div className="mecca-card">
             <div className="mecca-label">Makkah Live</div>
-            <img 
-              src="https://images.unsplash.com/photo-1542521148-51306e7ffc1e?q=85&w=1920&auto=format&fit=crop"
-              alt="Mecca"
-              className="mecca-image"
-            />
+            {settings?.makkah_embed_url ? (
+              <iframe 
+                src={settings.makkah_embed_url}
+                title="Makkah Live"
+                className="mecca-iframe"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <img 
+                src="https://images.unsplash.com/photo-1542521148-51306e7ffc1e?q=85&w=1920&auto=format&fit=crop"
+                alt="Mecca"
+                className="mecca-image"
+              />
+            )}
           </div>
         </div>
       </div>
