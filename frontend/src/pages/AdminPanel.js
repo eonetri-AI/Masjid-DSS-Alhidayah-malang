@@ -318,13 +318,13 @@ const AdminPanel = () => {
         <TabsContent value="quran">
           <Card>
             <CardHeader>
-              <CardTitle>Quran Verses</CardTitle>
-              <CardDescription>Manage Quran verses for display</CardDescription>
+              <CardTitle>Ayat Al-Quran</CardTitle>
+              <CardDescription>Kelola ayat Al-Quran untuk ditampilkan</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={addQuranVerse} className="add-form">
                 <div className="form-group">
-                  <Label htmlFor="verse_arabic">Arabic Text</Label>
+                  <Label htmlFor="verse_arabic">Teks Arab</Label>
                   <Textarea
                     id="verse_arabic"
                     name="arabic"
@@ -333,7 +333,7 @@ const AdminPanel = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="verse_translation">Translation</Label>
+                  <Label htmlFor="verse_translation">Terjemahan</Label>
                   <Textarea
                     id="verse_translation"
                     name="translation"
@@ -342,7 +342,7 @@ const AdminPanel = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="verse_reference">Reference (e.g., Surah Al-Baqarah 2:255)</Label>
+                  <Label htmlFor="verse_reference">Referensi (contoh: Surah Al-Baqarah 2:255)</Label>
                   <Input
                     id="verse_reference"
                     name="reference"
@@ -350,7 +350,7 @@ const AdminPanel = () => {
                     required
                   />
                 </div>
-                <Button type="submit" data-testid="add-verse-btn">Add Verse</Button>
+                <Button type="submit" data-testid="add-verse-btn">Tambah Ayat</Button>
               </form>
 
               <div className="items-list">
