@@ -135,23 +135,23 @@ const AdminPanel = () => {
 
     try {
       await axios.post(`${API}/financial-reports`, newReport);
-      toast.success("Financial report added!");
+      toast.success("Laporan keuangan berhasil ditambahkan!");
       fetchAllData();
       e.target.reset();
     } catch (error) {
       console.error("Error adding report:", error);
-      toast.error("Failed to add report");
+      toast.error("Gagal menambahkan laporan");
     }
   };
 
   const deleteFinancialReport = async (id) => {
     try {
       await axios.delete(`${API}/financial-reports/${id}`);
-      toast.success("Report deleted!");
+      toast.success("Laporan berhasil dihapus!");
       fetchAllData();
     } catch (error) {
       console.error("Error deleting report:", error);
-      toast.error("Failed to delete report");
+      toast.error("Gagal menghapus laporan");
     }
   };
 
