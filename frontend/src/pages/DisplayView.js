@@ -140,8 +140,10 @@ const DisplayView = () => {
     );
   }
 
+  const theme = settings?.theme || "midnight";
+  
   return (
-    <div className="display-container" data-testid="display-container">
+    <div className={`display-container theme-${theme}`} data-testid="display-container">
       {/* Background */}
       {settings?.background_image && (
         <div 
