@@ -274,7 +274,7 @@
 /* Financial Section */
 .financial-section {
   grid-column: span 3;
-  grid-row: 4;
+  grid-row: 5;
 }
 
 .financial-card {
