@@ -159,6 +159,57 @@
   to { transform: rotate(360deg); }
 }
 
+.calculation-info {
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.calculation-info p {
+  margin: 0;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.financial-card-admin .financial-details {
+  margin: 1rem 0;
+}
+
+.financial-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #E7E5E4;
+}
+
+.financial-row:last-child {
+  border-bottom: none;
+}
+
+.financial-row.positive {
+  color: #059669;
+}
+
+.financial-row.negative {
+  color: #DC2626;
+}
+
+.financial-row.total {
+  background: #F3F4F6;
+  padding: 0.75rem;
+  margin: 0.5rem -0.5rem 0;
+  border-radius: 0.5rem;
+  font-weight: 700;
+  border: 1px solid #064E3B;
+}
+
+.financial-row.total .amount {
+  color: #064E3B;
+  font-size: 1.25rem;
+}
+
 @media (max-width: 768px) {
   .admin-container {
     padding: 1rem;
