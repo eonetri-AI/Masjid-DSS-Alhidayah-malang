@@ -170,12 +170,21 @@ const AdminPanel = () => {
       
       <div className="admin-header">
         <h1 className="admin-title" data-testid="admin-title">Admin Tampilan Masjid</h1>
-        <Button 
-          onClick={() => window.open('/display', '_blank')}
-          data-testid="view-display-btn"
-        >
-          Lihat Tampilan
-        </Button>
+        <div className="header-buttons">
+          <Button 
+            onClick={() => window.location.href = '/preview'}
+            data-testid="preview-btn"
+            variant="outline"
+          >
+            👁️ Preview Mode
+          </Button>
+          <Button 
+            onClick={() => window.open('/display', '_blank')}
+            data-testid="view-display-btn"
+          >
+            Lihat Tampilan
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="settings" className="admin-tabs">
