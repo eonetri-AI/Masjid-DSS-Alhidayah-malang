@@ -168,7 +168,9 @@ const DisplayView = () => {
         {/* Next Prayer Countdown */}
         <div className="countdown-section" data-testid="countdown-section">
           <div className="countdown-card">
-            <div className="countdown-label">SHOLAT BERIKUTNYA</div>
+            <div className="countdown-label">
+              {prayerTimes.is_iqomah_countdown ? "WAKTU IQOMAH" : "SHOLAT BERIKUTNYA"}
+            </div>
             <div className="next-prayer-name" data-testid="next-prayer-name">
               {prayerTimes.next_prayer?.toUpperCase()}
             </div>
@@ -179,7 +181,9 @@ const DisplayView = () => {
               <span className="countdown-separator">:</span>
               <span className="countdown-number">{String(countdown.seconds).padStart(2, '0')}</span>
             </div>
-            <div className="countdown-sublabel">hingga Adzan</div>
+            <div className="countdown-sublabel">
+              {prayerTimes.is_iqomah_countdown ? "hingga Iqomah" : "hingga Adzan"}
+            </div>
           </div>
         </div>
 
