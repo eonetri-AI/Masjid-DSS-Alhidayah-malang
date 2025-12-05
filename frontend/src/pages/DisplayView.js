@@ -181,7 +181,6 @@ const DisplayView = () => {
           <div className="mosque-details">
             <h1 className="mosque-name">{settings?.mosque_name || "Masjid Al-Noor"}</h1>
             <p className="mosque-address">
-              {settings?.city_name && <span className="city-badge">{settings.city_name}</span>}
               {settings?.mosque_address || ""}
             </p>
           </div>
