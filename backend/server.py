@@ -304,8 +304,8 @@ async def get_prayer_times():
         settings.get("imsya_offset", 10)
     )
     
-    # Get next prayer
-    next_prayer, time_until = get_next_prayer_info(times, settings["iqomah_delays"])
+    # Get next prayer info
+    prayer_info = get_next_prayer_info(times, settings["iqomah_delays"])
     
     # Calculate iqomah times
     iqomah_times = {}
@@ -325,8 +325,9 @@ async def get_prayer_times():
         isha=times["isha"],
         gregorian_date=times["gregorian_date"],
         hijri_date=times["hijri_date"],
-        next_prayer=next_prayer,
-        time_until_next=time_until,
+        next_prayer=prayer_info["prayer"],
+        time_until_next=prayer_info["minutes_until"],
+        is_iqomah_countdown=prayer_info["is_iqomah_countdown"],
         iqomah_times=iqomah_times
     )
 
