@@ -37,6 +37,8 @@ class MosqueSettings(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     mosque_name: str = "Masjid Al-Noor"
+    mosque_address: str = "Jl. Contoh No. 123, Kota Malang"
+    mosque_logo: str = ""
     latitude: float = 3.139
     longitude: float = 101.6869
     timezone: str = "Asia/Kuala_Lumpur"
