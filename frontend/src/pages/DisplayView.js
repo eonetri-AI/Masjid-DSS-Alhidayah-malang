@@ -300,12 +300,11 @@ const DisplayView = () => {
             <div className="mecca-label">Makkah Live</div>
             {settings?.makkah_embed_url ? (
               <iframe 
-                src={settings.makkah_embed_url}
+                src={getEmbedUrl(settings.makkah_embed_url)}
                 title="Makkah Live"
                 className="mecca-iframe"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                sandbox="allow-same-origin allow-scripts allow-presentation"
               />
             ) : (
               <img 
