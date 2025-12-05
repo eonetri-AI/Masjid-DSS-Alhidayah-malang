@@ -21,6 +21,22 @@ const DisplayView = () => {
   const [passwordError, setPasswordError] = useState("");
   const [weather, setWeather] = useState(null);
 
+  // Convert YouTube watch URL to embed URL
+  const getEmbedUrl = (url) => {
+    if (!url) return "";
+    
+    // If already embed URL, return as is
+    if (url.includes('/embed/')) return url;
+    
+    // Convert watch URL to embed
+    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    if (videoIdMatch && videoIdMatch[1]) {
+      return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
+    }
+    
+    return url;
+  };
+
   // Fetch all data
   useEffect(() => {
     fetchData();
