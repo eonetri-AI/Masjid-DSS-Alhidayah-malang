@@ -81,6 +81,7 @@ class PrayerTimesResponse(BaseModel):
     hijri_date: str
     next_prayer: str
     time_until_next: int
+    is_iqomah_countdown: bool
     iqomah_times: Dict[str, str]
 
 class Announcement(BaseModel):
