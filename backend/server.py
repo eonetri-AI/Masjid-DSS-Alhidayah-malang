@@ -115,17 +115,18 @@ class QuranVerseCreate(BaseModel):
 class FinancialReport(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    title: str
-    amount: float
-    period: str
-    description: str = ""
+    saldo_pekan_lalu: float = 0.0
+    infaq_pekan_ini: float = 0.0
+    pengeluaran: float = 0.0
+    saldo_pekan_ini: float = 0.0
+    period: str = ""
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class FinancialReportCreate(BaseModel):
-    title: str
-    amount: float
-    period: str
-    description: str = ""
+    saldo_pekan_lalu: float
+    infaq_pekan_ini: float
+    pengeluaran: float
+    period: str = ""
 
 # ============== PRAYER TIMES SERVICE ==============
 
