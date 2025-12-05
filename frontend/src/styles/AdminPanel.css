@@ -159,6 +159,23 @@
   to { transform: rotate(360deg); }
 }
 
+.logo-preview {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-preview img {
+  max-width: 100px;
+  max-height: 100px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+}
+
 .calculation-info {
   background: #F3F4F6;
   border: 1px solid #E5E7EB;
