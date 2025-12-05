@@ -89,7 +89,7 @@ const DisplayView = () => {
     return (
       <div className="loading-screen" data-testid="loading-screen">
         <div className="loading-spinner"></div>
-        <p>Loading...</p>
+        <p>Memuat...</p>
       </div>
     );
   }
