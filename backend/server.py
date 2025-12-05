@@ -9,9 +9,9 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict
 import uuid
 from datetime import datetime, timezone, timedelta
-from islamic_times.islamic_times import ITLocation
 from hijri_converter import Hijri, Gregorian
 import pytz
+import httpx
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
