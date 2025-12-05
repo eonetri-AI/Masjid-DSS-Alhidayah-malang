@@ -21,20 +21,26 @@ const DisplayView = () => {
   const [passwordError, setPasswordError] = useState("");
   const [weather, setWeather] = useState(null);
 
-  // Convert YouTube watch URL to embed URL
+  // Convert YouTube watch URL to embed URL with auto-mute
   const getEmbedUrl = (url) => {
     if (!url) return "";
     
-    // If already embed URL, return as is
-    if (url.includes('/embed/')) return url;
+    let embedUrl = url;
     
-    // Convert watch URL to embed
-    const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-    if (videoIdMatch && videoIdMatch[1]) {
-      return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
+    // If already embed URL
+    if (url.includes('/embed/')) {
+      embedUrl = url;
+    } else {
+      // Convert watch URL to embed
+      const videoIdMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+      if (videoIdMatch && videoIdMatch[1]) {
+        embedUrl = `https://www.youtube.com/embed/${videoIdMatch[1]}`;
+      }
     }
     
-    return url;
+    // Add mute parameter
+    const separator = embedUrl.includes('?') ? '&' : '?';
+    return `${embedUrl}${separator}mute=1&autoplay=1`;
   };
 
   // Fetch all data
