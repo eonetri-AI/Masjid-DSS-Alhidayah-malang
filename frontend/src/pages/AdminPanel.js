@@ -377,6 +377,20 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
+                  <Label htmlFor="theme">Tema Tampilan</Label>
+                  <select
+                    id="theme"
+                    data-testid="select-theme"
+                    value={settings?.theme || "midnight"}
+                    onChange={(e) => setSettings({...settings, theme: e.target.value})}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="midnight">Gelap (Midnight)</option>
+                    <option value="bright">Cerah (Bright)</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
                   <Label htmlFor="background_image">URL Gambar Latar Belakang</Label>
                   <Input
                     id="background_image"
