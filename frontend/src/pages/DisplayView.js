@@ -152,6 +152,17 @@ const DisplayView = () => {
 
       {/* Main Grid */}
       <div className="display-grid">
+        {/* Mosque Info Header */}
+        <div className="mosque-info-header" data-testid="mosque-info-header">
+          {settings?.mosque_logo && (
+            <img src={settings.mosque_logo} alt="Logo Masjid" className="mosque-logo" />
+          )}
+          <div className="mosque-details">
+            <h1 className="mosque-name">{settings?.mosque_name || "Masjid Al-Noor"}</h1>
+            <p className="mosque-address">{settings?.mosque_address || ""}</p>
+          </div>
+        </div>
+
         {/* Header - Date & Time */}
         <div className="header-section" data-testid="header-section">
           <div className="date-time-card">
