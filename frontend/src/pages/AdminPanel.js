@@ -190,13 +190,13 @@ const AdminPanel = () => {
         <TabsContent value="settings">
           <Card>
             <CardHeader>
-              <CardTitle>Mosque Settings</CardTitle>
-              <CardDescription>Configure prayer time calculation and display settings</CardDescription>
+              <CardTitle>Pengaturan Masjid</CardTitle>
+              <CardDescription>Konfigurasi perhitungan waktu sholat dan pengaturan tampilan</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={updateSettings} className="settings-form">
                 <div className="form-group">
-                  <Label htmlFor="mosque_name">Mosque Name</Label>
+                  <Label htmlFor="mosque_name">Nama Masjid</Label>
                   <Input
                     id="mosque_name"
                     data-testid="input-mosque-name"
