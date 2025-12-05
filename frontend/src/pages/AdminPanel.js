@@ -425,6 +425,107 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
+                  <Label>Waktu Sholat Manual (Optional)</Label>
+                  <div className="manual-times-toggle">
+                    <input
+                      type="checkbox"
+                      id="use_manual_times"
+                      checked={settings?.use_manual_times || false}
+                      onChange={(e) => setSettings({...settings, use_manual_times: e.target.checked})}
+                    />
+                    <Label htmlFor="use_manual_times" className="ml-2">Gunakan Waktu Manual</Label>
+                  </div>
+                  {settings?.use_manual_times && (
+                    <div className="manual-times-grid">
+                      <div>
+                        <Label htmlFor="fajr_time">Subuh</Label>
+                        <Input
+                          type="time"
+                          id="fajr_time"
+                          value={settings?.manual_prayer_times?.fajr || "03:41"}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            manual_prayer_times: {...(settings.manual_prayer_times || {}), fajr: e.target.value}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="sunrise_time">Syuruq</Label>
+                        <Input
+                          type="time"
+                          id="sunrise_time"
+                          value={settings?.manual_prayer_times?.sunrise || "05:00"}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            manual_prayer_times: {...(settings.manual_prayer_times || {}), sunrise: e.target.value}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="dhuhr_time">Dzuhur</Label>
+                        <Input
+                          type="time"
+                          id="dhuhr_time"
+                          value={settings?.manual_prayer_times?.dhuhr || "11:24"}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            manual_prayer_times: {...(settings.manual_prayer_times || {}), dhuhr: e.target.value}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="asr_time">Ashar</Label>
+                        <Input
+                          type="time"
+                          id="asr_time"
+                          value={settings?.manual_prayer_times?.asr || "14:49"}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            manual_prayer_times: {...(settings.manual_prayer_times || {}), asr: e.target.value}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="maghrib_time">Maghrib</Label>
+                        <Input
+                          type="time"
+                          id="maghrib_time"
+                          value={settings?.manual_prayer_times?.maghrib || "17:40"}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            manual_prayer_times: {...(settings.manual_prayer_times || {}), maghrib: e.target.value}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="isha_time">Isya</Label>
+                        <Input
+                          type="time"
+                          id="isha_time"
+                          value={settings?.manual_prayer_times?.isha || "18:56"}
+                          onChange={(e) => setSettings({
+                            ...settings,
+                            manual_prayer_times: {...(settings.manual_prayer_times || {}), isha: e.target.value}
+                          })}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <Label htmlFor="makkah_embed_url">Makkah Live Embed URL</Label>
+                  <Input
+                    id="makkah_embed_url"
+                    data-testid="input-makkah-embed"
+                    value={settings?.makkah_embed_url || ""}
+                    onChange={(e) => setSettings({...settings, makkah_embed_url: e.target.value})}
+                    placeholder="https://www.youtube.com/embed/VIDEO_ID"
+                  />
+                  <span className="text-xs text-gray-500">Contoh: YouTube embed link untuk live streaming Makkah</span>
+                </div>
+
+                <div className="form-group">
                   <Label htmlFor="theme">Tema Tampilan</Label>
                   <select
                     id="theme"
@@ -439,13 +540,23 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
-                  <Label htmlFor="background_image">URL Gambar Latar Belakang</Label>
-                  <Input
-                    id="background_image"
-                    data-testid="input-background"
-                    value={settings?.background_image || ""}
-                    onChange={(e) => setSettings({...settings, background_image: e.target.value})}
-                  />
+                  <Label htmlFor="background_image">Gambar Latar Belakang</Label>
+                  <div className="upload-options">
+                    <Input
+                      type="file"
+                      id="background_file"
+                      accept="image/*"
+                      onChange={handleBackgroundUpload}
+                      className="mb-2"
+                    />
+                    <span className="text-xs text-gray-500">Atau masukkan URL:</span>
+                    <Input
+                      id="background_image"
+                      data-testid="input-background"
+                      value={settings?.background_image || ""}
+                      onChange={(e) => setSettings({...settings, background_image: e.target.value})}
+                    />
+                  </div>
                 </div>
 
                 <div className="form-group">
