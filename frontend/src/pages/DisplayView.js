@@ -15,7 +15,7 @@ const DisplayView = () => {
   const [financialReports, setFinancialReports] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [settings, setSettings] = useState(null);
-  const [countdown, setCountdown] = useState({ minutes: 0, seconds: 0 });
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
 
   // Fetch all data
   useEffect(() => {
