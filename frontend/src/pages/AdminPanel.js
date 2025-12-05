@@ -50,10 +50,10 @@ const AdminPanel = () => {
     e.preventDefault();
     try {
       await axios.put(`${API}/settings`, settings);
-      toast.success("Settings updated successfully!");
+      toast.success("Pengaturan berhasil diperbarui!");
     } catch (error) {
       console.error("Error updating settings:", error);
-      toast.error("Failed to update settings");
+      toast.error("Gagal memperbarui pengaturan");
     }
   };
 
