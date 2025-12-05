@@ -207,24 +207,50 @@ def calculate_prayer_times(latitude: float, longitude: float, tz_str: str, metho
             "current_time": now.strftime("%H:%M:%S")
         }
 
-def get_next_prayer_info(prayer_times: Dict, iqomah_delays: Dict[str, int]) -> tuple:
-    """Calculate next prayer and time remaining"""
+def get_next_prayer_info(prayer_times: Dict, iqomah_delays: Dict[str, int]) -> Dict:
+    """Calculate next prayer and time remaining, or iqomah countdown if within prayer time"""
     from datetime import datetime, timedelta
     
     prayer_names = ["fajr", "dhuhr", "asr", "maghrib", "isha"]
     current_time = datetime.strptime(prayer_times["current_time"], "%H:%M:%S").time()
+    now_dt = datetime.combine(datetime.today(), current_time)
     
+    # Check if we're in iqomah period (between adhan and iqomah)
+    for prayer in prayer_names:
+        adhan_time = datetime.strptime(prayer_times[prayer], "%H:%M").time()
+        adhan_dt = datetime.combine(datetime.today(), adhan_time)
+        
+        delay = iqomah_delays.get(prayer, 10)
+        iqomah_dt = adhan_dt + timedelta(minutes=delay)
+        
+        # If current time is between adhan and iqomah
+        if adhan_dt <= now_dt < iqomah_dt:
+            diff_seconds = (iqomah_dt - now_dt).total_seconds()
+            return {
+                "prayer": prayer,
+                "minutes_until": int(diff_seconds / 60),
+                "is_iqomah_countdown": True
+            }
+    
+    # Otherwise find next prayer
     for prayer in prayer_names:
         prayer_time = datetime.strptime(prayer_times[prayer], "%H:%M").time()
-        if prayer_time > current_time:
-            # Calculate minutes until prayer
-            now_dt = datetime.combine(datetime.today(), current_time)
-            prayer_dt = datetime.combine(datetime.today(), prayer_time)
-            diff = (prayer_dt - now_dt).total_seconds() / 60
-            return prayer, int(diff)
+        prayer_dt = datetime.combine(datetime.today(), prayer_time)
+        
+        if prayer_dt > now_dt:
+            diff_seconds = (prayer_dt - now_dt).total_seconds()
+            return {
+                "prayer": prayer,
+                "minutes_until": int(diff_seconds / 60),
+                "is_iqomah_countdown": False
+            }
     
     # If no prayer found today, next is Fajr tomorrow
-    return "fajr", 0
+    return {
+        "prayer": "fajr",
+        "minutes_until": 0,
+        "is_iqomah_countdown": False
+    }
 
 # ============== API ENDPOINTS ==============
 
