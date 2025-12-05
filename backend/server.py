@@ -405,6 +405,21 @@ async def delete_financial_report(report_id: str):
         raise HTTPException(status_code=404, detail="Report not found")
     return {"success": True}
 
+# Password verification endpoint
+@api_router.post("/verify-password")
+async def verify_password(data: PasswordVerify):
+    """Verify admin password"""
+    settings = await settings_collection.find_one({}, {"_id": 0})
+    if not settings:
+        settings = MosqueSettings().model_dump()
+    
+    stored_password = settings.get("admin_password", "admin123")
+    
+    if data.password == stored_password:
+        return {"success": True, "message": "Password verified"}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid password")
+
 # Include router
 app.include_router(api_router)
 
