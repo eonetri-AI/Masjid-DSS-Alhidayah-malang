@@ -180,8 +180,9 @@
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
   backdrop-filter: blur(12px);
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1.5rem;
   align-items: center;
   min-height: 60px;
 }
@@ -195,7 +196,7 @@
 }
 
 .dates {
-  text-align: right;
+  text-align: center;
 }
 
 .gregorian-date {
@@ -208,6 +209,42 @@
   font-size: 0.85rem;
   color: #94A3B8;
   margin-top: 0.25rem;
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.weather-icon {
+  width: 50px;
+  height: 50px;
+}
+
+.weather-details {
+  text-align: right;
+}
+
+.weather-temp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #F8FAFC;
+}
+
+.weather-desc {
+  font-size: 0.8rem;
+  color: #94A3B8;
+  text-transform: capitalize;
+}
+
+.display-container.theme-bright .weather-temp {
+  color: #1E40AF;
+}
+
+.display-container.theme-bright .weather-desc {
+  color: #475569;
 }
 
 /* Countdown Section */
