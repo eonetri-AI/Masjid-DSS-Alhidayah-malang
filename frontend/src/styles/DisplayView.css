@@ -400,15 +400,15 @@
   right: 0;
   background: #0F172A;
   border-top: 2px solid rgba(212, 175, 55, 0.3);
-  padding: 1rem 0;
+  padding: 0.75rem 0;
   z-index: 100;
-  height: 60px;
+  height: 50px;
   display: flex;
   align-items: center;
 }
 
 .announcement-text {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #F8FAFC;
   white-space: nowrap;
