@@ -262,7 +262,8 @@ async def get_prayer_times():
         settings["latitude"],
         settings["longitude"],
         settings["timezone"],
-        settings["calculation_method"]
+        settings["calculation_method"],
+        settings.get("imsya_offset", 10)
     )
     
     # Get next prayer
