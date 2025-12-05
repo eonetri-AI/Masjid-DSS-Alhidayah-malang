@@ -263,13 +263,13 @@ const AdminPanel = () => {
         <TabsContent value="announcements">
           <Card>
             <CardHeader>
-              <CardTitle>Announcements</CardTitle>
-              <CardDescription>Manage mosque announcements</CardDescription>
+              <CardTitle>Pengumuman</CardTitle>
+              <CardDescription>Kelola pengumuman masjid</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={addAnnouncement} className="add-form">
                 <div className="form-group">
-                  <Label htmlFor="ann_text">Announcement Text</Label>
+                  <Label htmlFor="ann_text">Teks Pengumuman</Label>
                   <Textarea
                     id="ann_text"
                     name="text"
@@ -278,7 +278,7 @@ const AdminPanel = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <Label htmlFor="ann_priority">Priority (1-5)</Label>
+                  <Label htmlFor="ann_priority">Prioritas (1-5)</Label>
                   <Input
                     id="ann_priority"
                     name="priority"
@@ -289,7 +289,7 @@ const AdminPanel = () => {
                     data-testid="input-announcement-priority"
                   />
                 </div>
-                <Button type="submit" data-testid="add-announcement-btn">Add Announcement</Button>
+                <Button type="submit" data-testid="add-announcement-btn">Tambah Pengumuman</Button>
               </form>
 
               <div className="items-list">
