@@ -41,6 +41,7 @@ class MosqueSettings(BaseModel):
     longitude: float = 101.6869
     timezone: str = "Asia/Kuala_Lumpur"
     calculation_method: str = "ISNA"
+    imsya_offset: int = 10
     iqomah_delays: Dict[str, int] = Field(default_factory=lambda: {
         "fajr": 15,
         "dhuhr": 10,
