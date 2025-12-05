@@ -69,23 +69,23 @@ const AdminPanel = () => {
 
     try {
       await axios.post(`${API}/announcements`, newAnnouncement);
-      toast.success("Announcement added!");
+      toast.success("Pengumuman berhasil ditambahkan!");
       fetchAllData();
       e.target.reset();
     } catch (error) {
       console.error("Error adding announcement:", error);
-      toast.error("Failed to add announcement");
+      toast.error("Gagal menambahkan pengumuman");
     }
   };
 
   const deleteAnnouncement = async (id) => {
     try {
       await axios.delete(`${API}/announcements/${id}`);
-      toast.success("Announcement deleted!");
+      toast.success("Pengumuman berhasil dihapus!");
       fetchAllData();
     } catch (error) {
       console.error("Error deleting announcement:", error);
-      toast.error("Failed to delete announcement");
+      toast.error("Gagal menghapus pengumuman");
     }
   };
 
