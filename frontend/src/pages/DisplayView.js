@@ -171,7 +171,7 @@ const DisplayView = () => {
         {financialReports.length > 0 && (
           <div className="financial-section" data-testid="financial-section">
             <div className="financial-card">
-              <div className="financial-title">Financial Report</div>
+              <div className="financial-title">Laporan Keuangan</div>
               {financialReports.slice(0, 3).map((report, idx) => (
                 <div key={idx} className="financial-item" data-testid={`financial-item-${idx}`}>
                   <div className="financial-label">{report.title}</div>
