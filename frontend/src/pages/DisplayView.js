@@ -249,7 +249,7 @@ const DisplayView = () => {
               {prayerTimes.is_iqomah_countdown ? "WAKTU IQOMAH" : "SHOLAT BERIKUTNYA"}
             </div>
             <div className="next-prayer-name" data-testid="next-prayer-name">
-              {prayerTimes.next_prayer?.toUpperCase()}
+              {getPrayerNameIndo(prayerTimes.next_prayer)}
             </div>
             <div className="countdown-timer" data-testid="countdown-timer">
               <span className="countdown-number">{String(countdown.hours).padStart(2, '0')}</span>
