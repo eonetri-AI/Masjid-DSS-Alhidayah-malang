@@ -240,6 +240,11 @@ const AdminPanel = () => {
       <div className="admin-header">
         <h1 className="admin-title" data-testid="admin-title">Admin Tampilan Masjid</h1>
         <div className="header-buttons">
+          {settings?.city_name && (
+            <div className="admin-city-badge" data-testid="admin-city-badge">
+              📍 {settings.city_name}
+            </div>
+          )}
           <Button 
             onClick={() => window.location.href = '/preview'}
             data-testid="preview-btn"
