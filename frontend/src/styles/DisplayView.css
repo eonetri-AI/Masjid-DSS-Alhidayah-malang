@@ -356,3 +356,97 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Password Modal */
+.password-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+}
+
+.password-modal {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 1rem;
+  padding: 2rem;
+  min-width: 400px;
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.2);
+}
+
+.password-modal h2 {
+  color: #D4AF37;
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.password-modal p {
+  color: #94A3B8;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.password-modal input {
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.5rem;
+  color: #F8FAFC;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.password-modal input:focus {
+  outline: none;
+  border-color: #D4AF37;
+}
+
+.error-message {
+  color: #EF4444;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-buttons button[type="submit"] {
+  background: #D4AF37;
+  color: #020617;
+}
+
+.modal-buttons button[type="submit"]:hover {
+  background: #E5C158;
+  transform: translateY(-2px);
+}
+
+.modal-buttons button[type="button"] {
+  background: rgba(148, 163, 184, 0.2);
+  color: #F8FAFC;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.modal-buttons button[type="button"]:hover {
+  background: rgba(148, 163, 184, 0.3);
+}
