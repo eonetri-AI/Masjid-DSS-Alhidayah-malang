@@ -178,6 +178,19 @@ const DisplayView = () => {
               <div className="gregorian-date">{prayerTimes.gregorian_date}</div>
               <div className="hijri-date">{prayerTimes.hijri_date}</div>
             </div>
+            {weather && (
+              <div className="weather-info" data-testid="weather-info">
+                <img 
+                  src={`http://openweathermap.org/img/wn/${weather.icon}@2x.png`}
+                  alt={weather.description}
+                  className="weather-icon"
+                />
+                <div className="weather-details">
+                  <div className="weather-temp">{weather.temperature}°C</div>
+                  <div className="weather-desc">{weather.description}</div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
