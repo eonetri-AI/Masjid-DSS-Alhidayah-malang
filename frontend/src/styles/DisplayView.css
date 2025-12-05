@@ -131,13 +131,13 @@
 }
 
 .mosque-logo {
-  width: 60px;
-  height: 60px;
+  width: 90px;
+  height: 90px;
   border-radius: 0.5rem;
   object-fit: cover;
-  border: 2px solid rgba(212, 175, 55, 0.3);
+  border: none;
   flex-shrink: 0;
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .mosque-details {
