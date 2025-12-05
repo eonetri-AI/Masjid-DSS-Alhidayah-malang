@@ -127,15 +127,15 @@ const AdminPanel = () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newReport = {
-      title: formData.get("title"),
-      amount: parseFloat(formData.get("amount")),
-      period: formData.get("period"),
-      description: formData.get("description") || ""
+      saldo_pekan_lalu: parseFloat(formData.get("saldo_pekan_lalu")),
+      infaq_pekan_ini: parseFloat(formData.get("infaq_pekan_ini")),
+      pengeluaran: parseFloat(formData.get("pengeluaran")),
+      period: formData.get("period") || ""
     };
 
     try {
       await axios.post(`${API}/financial-reports`, newReport);
-      toast.success("Laporan keuangan berhasil ditambahkan!");
+      toast.success("Laporan keuangan berhasil disimpan! Saldo Pekan Ini dihitung otomatis.");
       fetchAllData();
       e.target.reset();
     } catch (error) {
