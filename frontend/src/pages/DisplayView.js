@@ -43,6 +43,18 @@ const DisplayView = () => {
     return `${embedUrl}${separator}mute=1&autoplay=1`;
   };
 
+  // Convert prayer name to Indonesian
+  const getPrayerNameIndo = (prayerName) => {
+    const prayerMap = {
+      'fajr': 'SUBUH',
+      'dhuhr': 'DZUHUR',
+      'asr': 'ASHAR',
+      'maghrib': 'MAGHRIB',
+      'isha': 'ISYA'
+    };
+    return prayerMap[prayerName?.toLowerCase()] || prayerName?.toUpperCase();
+  };
+
   // Fetch all data
   useEffect(() => {
     fetchData();
