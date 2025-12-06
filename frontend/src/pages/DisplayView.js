@@ -78,20 +78,103 @@ const DisplayView = () => {
     }
   }, [quranVerses]);
 
-  // Calculate countdown
+  // Calculate countdown with proper logic
   useEffect(() => {
-    if (prayerTimes && prayerTimes.time_until_next !== undefined) {
-      const interval = setInterval(() => {
-        const now = new Date();
-        const totalSeconds = prayerTimes.time_until_next * 60 - (now.getSeconds());
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        setCountdown({ hours, minutes, seconds });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [prayerTimes]);
+    if (!prayerTimes) return;
+
+    const calculateCountdown = () => {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentSecond = now.getSeconds();
+      const currentTotalSeconds = currentHour * 3600 + currentMinute * 60 + currentSecond;
+
+      const prayers = [
+        { name: 'fajr', time: prayerTimes.fajr, iqomahDelay: settings?.iqomah_delays?.fajr || 15 },
+        { name: 'dhuhr', time: prayerTimes.dhuhr, iqomahDelay: settings?.iqomah_delays?.dhuhr || 10 },
+        { name: 'asr', time: prayerTimes.asr, iqomahDelay: settings?.iqomah_delays?.asr || 10 },
+        { name: 'maghrib', time: prayerTimes.maghrib, iqomahDelay: settings?.iqomah_delays?.maghrib || 5 },
+        { name: 'isha', time: prayerTimes.isha, iqomahDelay: settings?.iqomah_delays?.isha || 10 }
+      ];
+
+      // Check if currently in Iqomah period
+      for (const prayer of prayers) {
+        const [prayerHour, prayerMinute] = prayer.time.split(':').map(Number);
+        const prayerTotalSeconds = prayerHour * 3600 + prayerMinute * 60;
+        const iqomahTotalSeconds = prayerTotalSeconds + (prayer.iqomahDelay * 60);
+
+        // If between Adzan and Iqomah
+        if (currentTotalSeconds >= prayerTotalSeconds && currentTotalSeconds < iqomahTotalSeconds) {
+          const diff = iqomahTotalSeconds - currentTotalSeconds;
+          return {
+            hours: Math.floor(diff / 3600),
+            minutes: Math.floor((diff % 3600) / 60),
+            seconds: diff % 60,
+            isIqomah: true,
+            nextPrayer: prayer.name
+          };
+        }
+      }
+
+      // Find next prayer (Adzan countdown)
+      for (const prayer of prayers) {
+        const [prayerHour, prayerMinute] = prayer.time.split(':').map(Number);
+        const prayerTotalSeconds = prayerHour * 3600 + prayerMinute * 60;
+
+        if (prayerTotalSeconds > currentTotalSeconds) {
+          const diff = prayerTotalSeconds - currentTotalSeconds;
+          return {
+            hours: Math.floor(diff / 3600),
+            minutes: Math.floor((diff % 3600) / 60),
+            seconds: diff % 60,
+            isIqomah: false,
+            nextPrayer: prayer.name
+          };
+        }
+      }
+
+      // If no prayer found today, next is Fajr tomorrow
+      const [fajrHour, fajrMinute] = prayers[0].time.split(':').map(Number);
+      const fajrTotalSeconds = fajrHour * 3600 + fajrMinute * 60;
+      const diff = (24 * 3600) - currentTotalSeconds + fajrTotalSeconds;
+      
+      return {
+        hours: Math.floor(diff / 3600),
+        minutes: Math.floor((diff % 3600) / 60),
+        seconds: diff % 60,
+        isIqomah: false,
+        nextPrayer: 'fajr'
+      };
+    };
+
+    const interval = setInterval(() => {
+      const result = calculateCountdown();
+      setCountdown({
+        hours: result.hours,
+        minutes: result.minutes,
+        seconds: result.seconds
+      });
+      
+      // Update prayer times state with iqomah status
+      if (prayerTimes.next_prayer !== result.nextPrayer || prayerTimes.is_iqomah_countdown !== result.isIqomah) {
+        setPrayerTimes(prev => ({
+          ...prev,
+          next_prayer: result.nextPrayer,
+          is_iqomah_countdown: result.isIqomah
+        }));
+      }
+    }, 1000);
+
+    // Initial calculation
+    const result = calculateCountdown();
+    setCountdown({
+      hours: result.hours,
+      minutes: result.minutes,
+      seconds: result.seconds
+    });
+
+    return () => clearInterval(interval);
+  }, [prayerTimes, settings]);
 
   // Handle settings icon click (3 clicks to show password modal)
   useEffect(() => {
