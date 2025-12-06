@@ -77,6 +77,7 @@ class MosqueSettingsUpdate(BaseModel):
     theme: Optional[str] = None
     background_image: Optional[str] = None
     makkah_embed_url: Optional[str] = None
+    font_size: Optional[str] = None
     admin_password: Optional[str] = None
 
 class PasswordVerify(BaseModel):
