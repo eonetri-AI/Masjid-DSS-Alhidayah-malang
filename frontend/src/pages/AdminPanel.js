@@ -614,6 +614,23 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="form-group">
+                  <Label htmlFor="font_size">Ukuran Font Tampilan</Label>
+                  <select
+                    id="font_size"
+                    data-testid="select-font-size"
+                    value={settings?.font_size || "large"}
+                    onChange={(e) => setSettings({...settings, font_size: e.target.value})}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="small">Kecil - Untuk jarak dekat</option>
+                    <option value="medium">Sedang - Untuk ruangan kecil</option>
+                    <option value="large">Besar - Untuk ruangan menengah (Default)</option>
+                    <option value="xlarge">Sangat Besar - Untuk ruangan besar / jarak jauh</option>
+                  </select>
+                  <span className="text-xs text-gray-500">Pilih ukuran font sesuai jarak pandang jamaah</span>
+                </div>
+
+                <div className="form-group">
                   <Label htmlFor="background_image">Gambar Latar Belakang</Label>
                   <div className="upload-options">
                     <Input
