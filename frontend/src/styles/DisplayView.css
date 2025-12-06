@@ -40,7 +40,6 @@
 
 .display-container.theme-bright .mosque-name,
 .display-container.theme-bright .countdown-label,
-.display-container.theme-bright .next-prayer-name,
 .display-container.theme-bright .prayer-card.active .prayer-name,
 .display-container.theme-bright .current-time,
 .display-container.theme-bright .financial-title,
@@ -51,19 +50,32 @@
   color: #1E40AF;
 }
 
+.display-container.theme-bright .next-prayer-name {
+  color: #DC2626;
+  text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+}
+
+.display-container.theme-bright .countdown-number {
+  color: #DC2626;
+  text-shadow: 0 0 30px rgba(220, 38, 38, 0.4), 0 0 60px rgba(220, 38, 38, 0.2);
+}
+
+.display-container.theme-bright .countdown-separator {
+  color: #DC2626;
+  text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+}
+
 .display-container.theme-bright .mosque-address,
 .display-container.theme-bright .gregorian-date,
 .display-container.theme-bright .hijri-date,
 .display-container.theme-bright .prayer-name,
 .display-container.theme-bright .countdown-sublabel,
-.display-container.theme-bright .countdown-separator,
 .display-container.theme-bright .quran-translation,
 .display-container.theme-bright .financial-label,
 .display-container.theme-bright .iqomah-time {
   color: #475569;
 }
 
-.display-container.theme-bright .countdown-number,
 .display-container.theme-bright .prayer-time,
 .display-container.theme-bright .quran-arabic,
 .display-container.theme-bright .financial-amount {
