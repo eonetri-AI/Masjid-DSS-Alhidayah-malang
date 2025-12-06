@@ -781,8 +781,8 @@
   font-size: 2rem;
 }
 
-.display-container.font-medium .countdown-timer {
-  font-size: 3rem;
+.display-container.font-medium .countdown-number {
+  font-size: 4rem;
 }
 
 .display-container.font-medium .prayer-time {
