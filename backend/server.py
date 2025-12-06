@@ -223,19 +223,18 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
         method_num = method_map.get(method, 11)  # Default to Kemenag for Indonesia
         
         # Call Aladhan API with custom parameters for Indonesia
-        url = f"http://api.aladhan.com/v1/timings/{int(now.timestamp())}"
+        # Using timingsByCity endpoint for better accuracy
+        date_str = now.strftime("%d-%m-%Y")
+        url = "https://api.aladhan.com/v1/timings"
         params = {
             "latitude": latitude,
             "longitude": longitude,
             "method": method_num,
-            "school": 0,  # Shafi (for Indonesia)
-            "midnightMode": 0,  # Standard
-            "timezonestring": tz_str,
-            "adjustment": 0  # No adjustment
+            "school": 0  # Shafi (for Indonesia)
         }
         
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(url, params=params)
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+            response = await client.get(f"{url}/{date_str}", params=params)
             data = response.json()
         
         if data.get("code") == 200:
