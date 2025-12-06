@@ -444,12 +444,11 @@ async def get_prayer_times():
         }
         logging.info("Using manual prayer times")
     else:
-        # Calculate prayer times using Aladhan API
-        times = await calculate_prayer_times_aladhan(
+        # Calculate prayer times using MuslimSalat API (more accurate for Indonesia)
+        times = await calculate_prayer_times_muslimsalat(
             settings["latitude"],
             settings["longitude"],
             settings["timezone"],
-            settings["calculation_method"],
             settings.get("imsya_offset", 10)
         )
     
