@@ -57,6 +57,7 @@ class MosqueSettings(BaseModel):
     theme: str = "midnight"
     background_image: str = ""
     makkah_embed_url: str = ""
+    font_size: str = "large"
     admin_password: str = "admin123"
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
