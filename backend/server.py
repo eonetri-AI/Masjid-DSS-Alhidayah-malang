@@ -642,7 +642,7 @@ async def get_weather():
         
         # Using OpenWeatherMap free API
         api_key = "895284fb2d2c50a520ea537456963d9c"  # Free demo key
-        url = f"http://api.openweathermap.org/data/2.5/weather"
+        url = "http://api.openweathermap.org/data/2.5/weather"
         params = {
             "lat": lat,
             "lon": lon,
