@@ -178,9 +178,10 @@ const DisplayView = () => {
   }
 
   const theme = settings?.theme || "midnight";
+  const fontSize = settings?.font_size || "large";
   
   return (
-    <div className={`display-container theme-${theme}`} data-testid="display-container">
+    <div className={`display-container theme-${theme} font-${fontSize}`} data-testid="display-container">
       {/* Background */}
       {settings?.background_image && (
         <div 
