@@ -144,8 +144,67 @@ class FinancialReportCreate(BaseModel):
 
 # ============== PRAYER TIMES SERVICE ==============
 
+async def calculate_prayer_times_muslimsalat(latitude: float, longitude: float, tz_str: str, imsya_offset: int = 10):
+    """Calculate prayer times using MuslimSalat API (accurate for Indonesia)"""
+    try:
+        tz = pytz.timezone(tz_str)
+        now = datetime.now(tz)
+        
+        # MuslimSalat API - more accurate for Southeast Asia
+        url = "https://muslimsalat.com/daily.json"
+        params = {
+            "latitude": latitude,
+            "longitude": longitude
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            data = response.json()
+        
+        if data.get("items"):
+            items = data["items"][0]  # Get today's timings
+            
+            # Extract prayer times (24h format)
+            fajr_time = items["fajr"]
+            sunrise_time = items["shurooq"]
+            dhuhr_time = items["dhuhr"]
+            asr_time = items["asr"]
+            maghrib_time = items["maghrib"]
+            isha_time = items["isha"]
+            
+            # Calculate Imsya
+            fajr_dt = datetime.strptime(fajr_time, "%H:%M")
+            imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
+            imsya_time = imsya_dt.strftime("%H:%M")
+            
+            # Convert Gregorian to Hijri
+            hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
+            hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
+            
+            logging.info(f"MuslimSalat API: Fajr {fajr_time}, Dhuhr {dhuhr_time}, Maghrib {maghrib_time}")
+            
+            return {
+                "fajr": fajr_time,
+                "imsya": imsya_time,
+                "sunrise": sunrise_time,
+                "dhuhr": dhuhr_time,
+                "asr": asr_time,
+                "maghrib": maghrib_time,
+                "isha": isha_time,
+                "gregorian_date": now.strftime("%A, %d %B %Y"),
+                "hijri_date": hijri_str,
+                "current_time": now.strftime("%H:%M:%S")
+            }
+        else:
+            raise Exception(f"MuslimSalat API error: {data}")
+            
+    except Exception as e:
+        logging.error(f"Error with MuslimSalat API, falling back to Aladhan: {e}")
+        # Fallback to Aladhan
+        return await calculate_prayer_times_aladhan(latitude, longitude, tz_str, "MAKKAH", imsya_offset)
+
 async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_str: str, method: str = "ISNA", imsya_offset: int = 10) -> Dict:
-    """Calculate prayer times using Aladhan API"""
+    """Calculate prayer times using Aladhan API (fallback)"""
     try:
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
@@ -157,18 +216,22 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
             "EGYPTIAN": 5,  # Egyptian General Authority
             "KARACHI": 1,   # University of Islamic Sciences, Karachi
             "MAKKAH": 4,    # Umm Al-Qura University, Makkah
-            "TEHRAN": 7     # Institute of Geophysics, University of Tehran
+            "TEHRAN": 7,    # Institute of Geophysics, University of Tehran
+            "KEMENAG": 11   # Kementerian Agama RI (best for Indonesia)
         }
         
-        method_num = method_map.get(method, 2)
+        method_num = method_map.get(method, 11)  # Default to Kemenag for Indonesia
         
-        # Call Aladhan API
+        # Call Aladhan API with custom parameters for Indonesia
         url = f"http://api.aladhan.com/v1/timings/{int(now.timestamp())}"
         params = {
             "latitude": latitude,
             "longitude": longitude,
             "method": method_num,
-            "school": 0  # Shafi (for Indonesia)
+            "school": 0,  # Shafi (for Indonesia)
+            "midnightMode": 0,  # Standard
+            "timezonestring": tz_str,
+            "adjustment": 0  # No adjustment
         }
         
         async with httpx.AsyncClient(timeout=10.0) as client:
@@ -210,32 +273,26 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
                 "current_time": now.strftime("%H:%M:%S")
             }
         else:
-            raise Exception("Aladhan API returned error")
+            raise Exception(f"Aladhan API error: {data}")
             
     except Exception as e:
-        logging.error(f"Error fetching prayer times from Aladhan API: {e}")
-        import traceback
-        traceback.print_exc()
-        
-        # Fallback to default times
+        logging.error(f"Error calculating prayer times: {e}")
+        # Return default times as fallback
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
-        
-        fajr_dt = datetime.strptime("04:30", "%H:%M")
-        imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
-        imsya_time = imsya_dt.strftime("%H:%M")
+        hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
         
         return {
             "fajr": "04:30",
-            "imsya": imsya_time,
+            "imsya": "04:20",
             "sunrise": "05:45",
             "dhuhr": "11:45",
             "asr": "15:15",
             "maghrib": "17:45",
             "isha": "19:00",
             "gregorian_date": now.strftime("%A, %d %B %Y"),
-            "hijri_date": f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}",
+            "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
         }
 
