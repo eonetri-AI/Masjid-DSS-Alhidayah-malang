@@ -844,11 +844,11 @@
 }
 
 .display-container.font-xlarge .next-prayer-name {
-  font-size: 2.75rem;
+  font-size: 3rem;
 }
 
-.display-container.font-xlarge .countdown-timer {
-  font-size: 4.5rem;
+.display-container.font-xlarge .countdown-number {
+  font-size: 6.5rem;
 }
 
 .display-container.font-xlarge .prayer-time {
