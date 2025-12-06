@@ -711,3 +711,165 @@
 .modal-buttons button[type="button"]:hover {
   background: rgba(148, 163, 184, 0.3);
 }
+
+/* ============================================ */
+/* Font Size Scaling Options */
+/* ============================================ */
+
+/* Small - For close viewing */
+.display-container.font-small .current-time {
+  font-size: 1.5rem;
+}
+
+.display-container.font-small .mosque-name {
+  font-size: 1.75rem;
+}
+
+.display-container.font-small .next-prayer-name {
+  font-size: 1.75rem;
+}
+
+.display-container.font-small .countdown-timer {
+  font-size: 2.5rem;
+}
+
+.display-container.font-small .prayer-time {
+  font-size: 1.25rem;
+}
+
+.display-container.font-small .prayer-name {
+  font-size: 0.85rem;
+}
+
+.display-container.font-small .gregorian-date {
+  font-size: 0.9rem;
+}
+
+.display-container.font-small .quran-arabic {
+  font-size: 1.1rem;
+}
+
+/* Medium - For small rooms */
+.display-container.font-medium .current-time {
+  font-size: 1.75rem;
+}
+
+.display-container.font-medium .mosque-name {
+  font-size: 2rem;
+}
+
+.display-container.font-medium .next-prayer-name {
+  font-size: 2rem;
+}
+
+.display-container.font-medium .countdown-timer {
+  font-size: 3rem;
+}
+
+.display-container.font-medium .prayer-time {
+  font-size: 1.5rem;
+}
+
+.display-container.font-medium .prayer-name {
+  font-size: 0.95rem;
+}
+
+.display-container.font-medium .gregorian-date {
+  font-size: 0.95rem;
+}
+
+.display-container.font-medium .quran-arabic {
+  font-size: 1.25rem;
+}
+
+/* Large - Default (already set in base styles) */
+.display-container.font-large .current-time {
+  font-size: 2rem;
+}
+
+.display-container.font-large .mosque-name {
+  font-size: 2.25rem;
+}
+
+.display-container.font-large .next-prayer-name {
+  font-size: 2.25rem;
+}
+
+.display-container.font-large .countdown-timer {
+  font-size: 3.5rem;
+}
+
+.display-container.font-large .prayer-time {
+  font-size: 1.75rem;
+}
+
+.display-container.font-large .prayer-name {
+  font-size: 1rem;
+}
+
+.display-container.font-large .gregorian-date {
+  font-size: 1rem;
+}
+
+.display-container.font-large .quran-arabic {
+  font-size: 1.4rem;
+}
+
+/* XLarge - For large rooms / far viewing distance */
+.display-container.font-xlarge .current-time {
+  font-size: 2.5rem;
+}
+
+.display-container.font-xlarge .mosque-name {
+  font-size: 2.75rem;
+}
+
+.display-container.font-xlarge .next-prayer-name {
+  font-size: 2.75rem;
+}
+
+.display-container.font-xlarge .countdown-timer {
+  font-size: 4.5rem;
+}
+
+.display-container.font-xlarge .prayer-time {
+  font-size: 2.25rem;
+}
+
+.display-container.font-xlarge .prayer-name {
+  font-size: 1.15rem;
+}
+
+.display-container.font-xlarge .iqomah-time {
+  font-size: 0.85rem;
+}
+
+.display-container.font-xlarge .gregorian-date {
+  font-size: 1.15rem;
+}
+
+.display-container.font-xlarge .hijri-date {
+  font-size: 1rem;
+}
+
+.display-container.font-xlarge .quran-arabic {
+  font-size: 1.75rem;
+}
+
+.display-container.font-xlarge .quran-translation {
+  font-size: 1.15rem;
+}
+
+.display-container.font-xlarge .financial-label,
+.display-container.font-xlarge .financial-amount {
+  font-size: 1.05rem;
+}
+
+.display-container.font-xlarge .countdown-label {
+  font-size: 1.15rem;
+}
+
+.display-container.font-xlarge .countdown-sublabel {
+  font-size: 1rem;
+}
+}
