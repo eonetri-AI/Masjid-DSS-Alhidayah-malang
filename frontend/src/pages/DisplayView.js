@@ -20,6 +20,7 @@ const DisplayView = () => {
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [weather, setWeather] = useState(null);
+  const [disasterWarning, setDisasterWarning] = useState(null);
 
   // Convert YouTube watch URL to embed URL with auto-mute
   const getEmbedUrl = (url) => {
