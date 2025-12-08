@@ -209,7 +209,7 @@ async def calculate_prayer_times_muslimsalat(latitude: float, longitude: float, 
                 "asr": asr_time,
                 "maghrib": maghrib_time,
                 "isha": isha_time,
-                "gregorian_date": now.strftime("%A, %d %B %Y"),
+                "gregorian_date": format_date_indonesian(now),
                 "hijri_date": hijri_str,
                 "current_time": now.strftime("%H:%M:%S")
             }
@@ -285,7 +285,7 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
                 "asr": asr_time,
                 "maghrib": maghrib_time,
                 "isha": isha_time,
-                "gregorian_date": now.strftime("%A, %d %B %Y"),
+                "gregorian_date": format_date_indonesian(now),
                 "hijri_date": hijri_str,
                 "current_time": now.strftime("%H:%M:%S")
             }
@@ -308,7 +308,7 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
             "asr": "15:15",
             "maghrib": "17:45",
             "isha": "19:00",
-            "gregorian_date": now.strftime("%A, %d %B %Y"),
+            "gregorian_date": format_date_indonesian(now),
             "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
         }
@@ -455,7 +455,7 @@ async def get_prayer_times():
             "asr": manual_times.get("asr", "15:15"),
             "maghrib": manual_times.get("maghrib", "17:45"),
             "isha": manual_times.get("isha", "19:00"),
-            "gregorian_date": now.strftime("%A, %d %B %Y"),
+            "gregorian_date": format_date_indonesian(now),
             "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
         }
