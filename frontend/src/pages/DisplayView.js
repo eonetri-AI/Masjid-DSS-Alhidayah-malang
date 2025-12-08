@@ -222,13 +222,14 @@ const DisplayView = () => {
 
   const fetchData = async () => {
     try {
-      const [timesRes, announcementsRes, versesRes, reportsRes, settingsRes, weatherRes] = await Promise.all([
+      const [timesRes, announcementsRes, versesRes, reportsRes, settingsRes, weatherRes, warningRes] = await Promise.all([
         axios.get(`${API}/prayer-times`),
         axios.get(`${API}/announcements`),
         axios.get(`${API}/quran-verses`),
         axios.get(`${API}/financial-reports`),
         axios.get(`${API}/settings`),
-        axios.get(`${API}/weather`)
+        axios.get(`${API}/weather`),
+        axios.get(`${API}/disaster-warnings`)
       ]);
 
       setPrayerTimes(timesRes.data);
@@ -237,6 +238,7 @@ const DisplayView = () => {
       setFinancialReports(reportsRes.data);
       setSettings(settingsRes.data);
       setWeather(weatherRes.data);
+      setDisasterWarning(warningRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
