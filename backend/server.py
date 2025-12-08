@@ -12,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 from hijri_converter import Hijri, Gregorian
 import pytz
 import httpx
+import locale
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
