@@ -679,10 +679,8 @@ async def get_weather():
             "Banyuwangi": "516"
         }
         
-        city_code = bmkg_city_codes.get(city_name, "506")  # Default to Malang
-        
         # BMKG Cuaca API
-        url = f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTimur.xml"
+        url = "https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTimur.xml"
         
         async with httpx.AsyncClient(timeout=15.0) as client:
             response = await client.get(url)
