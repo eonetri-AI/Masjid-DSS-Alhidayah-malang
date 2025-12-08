@@ -190,6 +190,94 @@
   justify-content: center;
 }
 
+
+
+/* Disaster Warning Banner */
+.disaster-warning-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  border: 2px solid #FEE2E2;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  animation: warningPulse 2s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5);
+}
+
+@keyframes warningPulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    box-shadow: 0 6px 30px rgba(220, 38, 38, 0.8);
+  }
+}
+
+.warning-icon {
+  font-size: 2rem;
+  animation: warningShake 0.5s ease-in-out infinite;
+}
+
+@keyframes warningShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.warning-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.warning-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #FEE2E2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.warning-details {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: #FFFFFF;
+}
+
+.warning-magnitude {
+  font-weight: 700;
+  background: rgba(254, 226, 226, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.warning-location {
+  font-weight: 600;
+}
+
+.warning-time {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.warning-potential {
+  font-weight: 700;
+  background: rgba(254, 226, 226, 0.3);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+}
+
+.display-container.theme-bright .disaster-warning-banner {
+  background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
+  border-color: #FCA5A5;
+}
+
 .city-badge-display {
   background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(212, 175, 55, 0.15) 100%);
   color: #D4AF37;
