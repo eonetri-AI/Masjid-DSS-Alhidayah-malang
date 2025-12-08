@@ -658,27 +658,6 @@ async def get_weather():
         
         city_name = settings.get("city_name", "Malang")
         
-        # BMKG Weather API endpoint for specific cities
-        # Using BMKG OpenData for weather forecast
-        bmkg_city_codes = {
-            "Jakarta": "501",
-            "Bandung": "502",
-            "Semarang": "503",
-            "Yogyakarta": "504",
-            "Surabaya": "505",
-            "Malang": "506",
-            "Denpasar": "507",
-            "Makassar": "508",
-            "Manado": "509",
-            "Palembang": "510",
-            "Medan": "511",
-            "Pekanbaru": "512",
-            "Pontianak": "513",
-            "Banjarmasin": "514",
-            "Balikpapan": "515",
-            "Banyuwangi": "516"
-        }
-        
         # BMKG Cuaca API
         url = "https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTimur.xml"
         
