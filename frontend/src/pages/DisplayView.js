@@ -325,6 +325,24 @@ const DisplayView = () => {
           </div>
         </div>
 
+        {/* Disaster Warning Banner */}
+        {disasterWarning?.has_warning && (
+          <div className="disaster-warning-banner">
+            <div className="warning-icon">⚠️</div>
+            <div className="warning-content">
+              <div className="warning-title">PERINGATAN GEMPA BUMI</div>
+              <div className="warning-details">
+                <span className="warning-magnitude">M{disasterWarning.magnitude}</span>
+                <span className="warning-location">{disasterWarning.location}</span>
+                <span className="warning-time">{disasterWarning.time}</span>
+                {disasterWarning.potential && (
+                  <span className="warning-potential">{disasterWarning.potential}</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Next Prayer Countdown */}
         <div className="countdown-section" data-testid="countdown-section">
           <div className="countdown-card">
