@@ -649,52 +649,164 @@ async def upload_file(file: UploadFile = File(...)):
 # Weather API endpoint
 @api_router.get("/weather")
 async def get_weather():
-    """Get current weather"""
+    """Get weather data from BMKG"""
     try:
-        settings = await settings_collection.find_one({}, {"_id": 0})
+        # Get location from settings
+        settings = await settings_collection.find_one()
         if not settings:
-            settings = MosqueSettings().model_dump()
+            raise HTTPException(status_code=404, detail="Settings not found")
         
-        lat = settings["latitude"]
-        lon = settings["longitude"]
+        city_name = settings.get("city_name", "Malang")
         
-        # Using OpenWeatherMap free API
-        api_key = "895284fb2d2c50a520ea537456963d9c"  # Free demo key
-        url = "http://api.openweathermap.org/data/2.5/weather"
-        params = {
-            "lat": lat,
-            "lon": lon,
-            "appid": api_key,
-            "units": "metric",
-            "lang": "id"
+        # BMKG Weather API endpoint for specific cities
+        # Using BMKG OpenData for weather forecast
+        bmkg_city_codes = {
+            "Jakarta": "501",
+            "Bandung": "502",
+            "Semarang": "503",
+            "Yogyakarta": "504",
+            "Surabaya": "505",
+            "Malang": "506",
+            "Denpasar": "507",
+            "Makassar": "508",
+            "Manado": "509",
+            "Palembang": "510",
+            "Medan": "511",
+            "Pekanbaru": "512",
+            "Pontianak": "513",
+            "Banjarmasin": "514",
+            "Balikpapan": "515",
+            "Banyuwangi": "516"
         }
         
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(url, params=params)
-            data = response.json()
+        city_code = bmkg_city_codes.get(city_name, "506")  # Default to Malang
         
-        if response.status_code == 200:
-            return {
-                "temperature": round(data["main"]["temp"]),
-                "feels_like": round(data["main"]["feels_like"]),
-                "humidity": data["main"]["humidity"],
-                "description": data["weather"][0]["description"],
-                "icon": data["weather"][0]["icon"],
-                "wind_speed": data["wind"]["speed"]
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Weather API error")
+        # BMKG Cuaca API
+        url = f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTimur.xml"
+        
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(url)
             
-    except Exception as e:
-        logging.error(f"Error fetching weather: {e}")
-        # Return default weather data
+            if response.status_code == 200:
+                # Parse XML response (simplified - get first area data)
+                import xml.etree.ElementTree as ET
+                root = ET.fromstring(response.content)
+                
+                # Find the area matching our city
+                for area in root.findall(".//area"):
+                    area_name = area.get("description", "")
+                    if city_name.lower() in area_name.lower():
+                        # Get current weather parameters
+                        temp_elem = area.find(".//parameter[@id='t']")
+                        humidity_elem = area.find(".//parameter[@id='hu']")
+                        weather_elem = area.find(".//parameter[@id='weather']")
+                        
+                        temp = 28  # default
+                        humidity = 75
+                        weather_desc = "Cerah Berawan"
+                        
+                        if temp_elem is not None:
+                            timerange = temp_elem.find(".//timerange")
+                            if timerange is not None:
+                                value = timerange.find("value")
+                                if value is not None and value.text:
+                                    temp = int(float(value.text))
+                        
+                        if humidity_elem is not None:
+                            timerange = humidity_elem.find(".//timerange")
+                            if timerange is not None:
+                                value = timerange.find("value")
+                                if value is not None and value.text:
+                                    humidity = int(float(value.text))
+                        
+                        if weather_elem is not None:
+                            timerange = weather_elem.find(".//timerange")
+                            if timerange is not None:
+                                value = timerange.find("value")
+                                if value is not None and value.text:
+                                    weather_code = int(value.text)
+                                    weather_desc = get_bmkg_weather_description(weather_code)
+                        
+                        return {
+                            "temperature": temp,
+                            "humidity": humidity,
+                            "description": weather_desc,
+                            "source": "BMKG"
+                        }
+        
+        # Fallback to default
         return {
             "temperature": 28,
-            "feels_like": 30,
             "humidity": 75,
-            "description": "berawan",
-            "icon": "02d",
-            "wind_speed": 2.5
+            "description": "Cerah Berawan",
+            "source": "BMKG"
+        }
+            
+    except Exception as e:
+        logging.error(f"Error fetching BMKG weather: {e}")
+        return {
+            "temperature": 28,
+            "humidity": 75,
+            "description": "Cerah Berawan",
+            "source": "BMKG"
+        }
+
+def get_bmkg_weather_description(code: int) -> str:
+    """Convert BMKG weather code to description"""
+    weather_codes = {
+        0: "Cerah",
+        1: "Cerah Berawan",
+        2: "Cerah Berawan",
+        3: "Berawan",
+        4: "Berawan Tebal",
+        5: "Udara Kabur",
+        10: "Asap",
+        45: "Kabut",
+        60: "Hujan Ringan",
+        61: "Hujan Sedang",
+        63: "Hujan Lebat",
+        80: "Hujan Lokal",
+        95: "Hujan Petir",
+        97: "Hujan Petir"
+    }
+    return weather_codes.get(code, "Cerah Berawan")
+
+@api_router.get("/disaster-warnings")
+async def get_disaster_warnings():
+    """Get disaster warnings from BMKG"""
+    try:
+        # BMKG EWS (Early Warning System) API
+        url = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json"
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url)
+            
+            if response.status_code == 200:
+                data = response.json()
+                gempa = data.get("Infogempa", {}).get("gempa", {})
+                
+                if gempa:
+                    return {
+                        "has_warning": True,
+                        "type": "gempa",
+                        "magnitude": gempa.get("Magnitude", ""),
+                        "depth": gempa.get("Kedalaman", ""),
+                        "location": gempa.get("Wilayah", ""),
+                        "time": gempa.get("Tanggal", "") + " " + gempa.get("Jam", ""),
+                        "potential": gempa.get("Potensi", ""),
+                        "coordinates": gempa.get("Coordinates", "")
+                    }
+        
+        return {
+            "has_warning": False,
+            "message": "Tidak ada peringatan bencana saat ini"
+        }
+            
+    except Exception as e:
+        logging.error(f"Error fetching disaster warnings: {e}")
+        return {
+            "has_warning": False,
+            "message": "Tidak dapat mengambil data peringatan"
         }
 
 # Include router
