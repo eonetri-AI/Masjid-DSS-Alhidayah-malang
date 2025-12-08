@@ -143,6 +143,23 @@ class FinancialReportCreate(BaseModel):
     pengeluaran: float
     period: str = ""
 
+# ============== HELPER FUNCTIONS ==============
+
+def format_date_indonesian(dt: datetime) -> str:
+    """Format date in Indonesian"""
+    days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+    months = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ]
+    
+    day_name = days[dt.weekday()]
+    day = dt.day
+    month_name = months[dt.month - 1]
+    year = dt.year
+    
+    return f"{day_name}, {day} {month_name} {year}"
+
 # ============== PRAYER TIMES SERVICE ==============
 
 async def calculate_prayer_times_muslimsalat(latitude: float, longitude: float, tz_str: str, imsya_offset: int = 10):
