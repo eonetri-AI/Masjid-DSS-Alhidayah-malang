@@ -649,7 +649,7 @@ async def upload_file(file: UploadFile = File(...)):
 # Weather API endpoint
 @api_router.get("/weather")
 async def get_weather():
-    """Get weather data from BMKG"""
+    """Get weather data from BMKG via cuaca-gempa-rest-api"""
     try:
         # Get location from settings
         settings = await settings_collection.find_one()
@@ -658,60 +658,71 @@ async def get_weather():
         
         city_name = settings.get("city_name", "Malang")
         
-        # BMKG Cuaca API
-        url = "https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTimur.xml"
+        # Try primary API: cuaca-gempa-rest-api (hosted on Vercel)
+        url = "https://cuaca-gempa-rest-api.vercel.app/weather/"
+        params = {"city": city_name}
         
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url)
-            
-            if response.status_code == 200:
-                # Parse XML response (simplified - get first area data)
-                import xml.etree.ElementTree as ET
-                root = ET.fromstring(response.content)
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                response = await client.get(url, params=params)
                 
-                # Find the area matching our city
-                for area in root.findall(".//area"):
-                    area_name = area.get("description", "")
-                    if city_name.lower() in area_name.lower():
-                        # Get current weather parameters
-                        temp_elem = area.find(".//parameter[@id='t']")
-                        humidity_elem = area.find(".//parameter[@id='hu']")
-                        weather_elem = area.find(".//parameter[@id='weather']")
-                        
-                        temp = 28  # default
-                        humidity = 75
-                        weather_desc = "Cerah Berawan"
-                        
-                        if temp_elem is not None:
-                            timerange = temp_elem.find(".//timerange")
-                            if timerange is not None:
-                                value = timerange.find("value")
-                                if value is not None and value.text:
-                                    temp = int(float(value.text))
-                        
-                        if humidity_elem is not None:
-                            timerange = humidity_elem.find(".//timerange")
-                            if timerange is not None:
-                                value = timerange.find("value")
-                                if value is not None and value.text:
-                                    humidity = int(float(value.text))
-                        
-                        if weather_elem is not None:
-                            timerange = weather_elem.find(".//timerange")
-                            if timerange is not None:
-                                value = timerange.find("value")
-                                if value is not None and value.text:
-                                    weather_code = int(value.text)
-                                    weather_desc = get_bmkg_weather_description(weather_code)
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Get current weather (first forecast entry)
+                    if data.get("data") and len(data["data"]) > 0:
+                        current = data["data"][0]
                         
                         return {
-                            "temperature": temp,
-                            "humidity": humidity,
-                            "description": weather_desc,
+                            "temperature": int(current.get("t", 28)),
+                            "humidity": int(current.get("hu", 75)),
+                            "description": current.get("weather", "Cerah Berawan"),
+                            "wind_speed": current.get("ws", 0),
                             "source": "BMKG"
                         }
+            except Exception as api_error:
+                logging.warning(f"Primary BMKG API failed: {api_error}, trying fallback...")
         
-        # Fallback to default
+        # Fallback: Try GitHub Pages static data
+        province_map = {
+            "Jakarta": "dki-jakarta",
+            "Bandung": "jawa-barat",
+            "Yogyakarta": "di-yogyakarta",
+            "Semarang": "jawa-tengah",
+            "Surabaya": "jawa-timur",
+            "Malang": "jawa-timur",
+            "Denpasar": "bali",
+            "Makassar": "sulawesi-selatan",
+            "Medan": "sumatera-utara",
+            "Palembang": "sumatera-selatan"
+        }
+        
+        province = province_map.get(city_name, "jawa-timur")
+        fallback_url = f"https://ibnux.github.io/BMKG-importer/cuaca/{province}.json"
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                response = await client.get(fallback_url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Find matching city in province data
+                    for area in data:
+                        if city_name.lower() in area.get("kota", "").lower():
+                            cuaca_data = area.get("cuaca", [[]])[0]
+                            if cuaca_data:
+                                first = cuaca_data[0]
+                                return {
+                                    "temperature": int(first.get("t", 28)),
+                                    "humidity": int(first.get("hu", 75)),
+                                    "description": first.get("weather", "Cerah Berawan"),
+                                    "source": "BMKG"
+                                }
+            except Exception as fallback_error:
+                logging.warning(f"Fallback BMKG API failed: {fallback_error}")
+        
+        # Ultimate fallback
         return {
             "temperature": 28,
             "humidity": 75,
