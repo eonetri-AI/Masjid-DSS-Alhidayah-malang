@@ -649,7 +649,7 @@ async def upload_file(file: UploadFile = File(...)):
 # Weather API endpoint
 @api_router.get("/weather")
 async def get_weather():
-    """Get weather data from BMKG via cuaca-gempa-rest-api"""
+    """Get weather data from BMKG Open Data"""
     try:
         # Get location from settings
         settings = await settings_collection.find_one()
@@ -657,72 +657,90 @@ async def get_weather():
             raise HTTPException(status_code=404, detail="Settings not found")
         
         city_name = settings.get("city_name", "Malang")
+        lat = settings.get("latitude", -7.9666)
+        lon = settings.get("longitude", 112.6326)
         
-        # Try primary API: cuaca-gempa-rest-api (hosted on Vercel)
-        url = "https://cuaca-gempa-rest-api.vercel.app/weather/"
-        params = {"city": city_name}
-        
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            try:
-                response = await client.get(url, params=params)
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    
-                    # Get current weather (first forecast entry)
-                    if data.get("data") and len(data["data"]) > 0:
-                        current = data["data"][0]
-                        
-                        return {
-                            "temperature": int(current.get("t", 28)),
-                            "humidity": int(current.get("hu", 75)),
-                            "description": current.get("weather", "Cerah Berawan"),
-                            "wind_speed": current.get("ws", 0),
-                            "source": "BMKG"
-                        }
-            except Exception as api_error:
-                logging.warning(f"Primary BMKG API failed: {api_error}, trying fallback...")
-        
-        # Fallback: Try GitHub Pages static data
-        province_map = {
-            "Jakarta": "dki-jakarta",
-            "Bandung": "jawa-barat",
-            "Yogyakarta": "di-yogyakarta",
-            "Semarang": "jawa-tengah",
-            "Surabaya": "jawa-timur",
-            "Malang": "jawa-timur",
-            "Denpasar": "bali",
-            "Makassar": "sulawesi-selatan",
-            "Medan": "sumatera-utara",
-            "Palembang": "sumatera-selatan"
+        # Map cities to BMKG province codes
+        province_codes = {
+            "Jakarta": "31",
+            "Bandung": "32",
+            "Yogyakarta": "34",
+            "Semarang": "33",
+            "Surabaya": "35",
+            "Malang": "35",
+            "Denpasar": "51",
+            "Makassar": "73",
+            "Medan": "12",
+            "Palembang": "16",
+            "Pontianak": "61",
+            "Banjarmasin": "63",
+            "Balikpapan": "64",
+            "Manado": "71",
+            "Pekanbaru": "14",
+            "Banyuwangi": "35"
         }
         
-        province = province_map.get(city_name, "jawa-timur")
-        fallback_url = f"https://ibnux.github.io/BMKG-importer/cuaca/{province}.json"
+        province_code = province_codes.get(city_name, "35")
         
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        # Try BMKG Digital Forecast API
+        url = f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{get_province_name(province_code)}.xml"
+        
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
             try:
-                response = await client.get(fallback_url)
+                response = await client.get(url)
                 
                 if response.status_code == 200:
-                    data = response.json()
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(response.content)
                     
-                    # Find matching city in province data
-                    for area in data:
-                        if city_name.lower() in area.get("kota", "").lower():
-                            cuaca_data = area.get("cuaca", [[]])[0]
-                            if cuaca_data:
-                                first = cuaca_data[0]
-                                return {
-                                    "temperature": int(first.get("t", 28)),
-                                    "humidity": int(first.get("hu", 75)),
-                                    "description": first.get("weather", "Cerah Berawan"),
-                                    "source": "BMKG"
-                                }
-            except Exception as fallback_error:
-                logging.warning(f"Fallback BMKG API failed: {fallback_error}")
+                    # Find matching city/area
+                    for area in root.findall(".//area"):
+                        area_desc = area.get("description", "").lower()
+                        
+                        if city_name.lower() in area_desc or area_desc in city_name.lower():
+                            # Get temperature parameter
+                            temp_param = area.find(".//parameter[@id='t']")
+                            humidity_param = area.find(".//parameter[@id='hu']")
+                            weather_param = area.find(".//parameter[@id='weather']")
+                            
+                            temp = 28
+                            humidity = 75
+                            weather_desc = "Cerah Berawan"
+                            
+                            if temp_param is not None:
+                                timerange = temp_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        temp = int(float(values[0].text))
+                            
+                            if humidity_param is not None:
+                                timerange = humidity_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        humidity = int(float(values[0].text))
+                            
+                            if weather_param is not None:
+                                timerange = weather_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        weather_code = int(values[0].text)
+                                        weather_desc = get_bmkg_weather_description(weather_code)
+                            
+                            logging.info(f"BMKG Weather: {city_name} - {temp}°C, {weather_desc}")
+                            
+                            return {
+                                "temperature": temp,
+                                "humidity": humidity,
+                                "description": weather_desc,
+                                "source": "BMKG"
+                            }
+            except Exception as xml_error:
+                logging.warning(f"BMKG XML API error: {xml_error}")
         
-        # Ultimate fallback
+        # Fallback to default reasonable values
         return {
             "temperature": 28,
             "humidity": 75,
@@ -738,6 +756,46 @@ async def get_weather():
             "description": "Cerah Berawan",
             "source": "BMKG"
         }
+
+def get_province_name(code: str) -> str:
+    """Get province name for BMKG API"""
+    provinces = {
+        "11": "Aceh",
+        "12": "SumateraUtara",
+        "13": "SumateraBarat",
+        "14": "Riau",
+        "15": "Jambi",
+        "16": "SumateraSelatan",
+        "17": "Bengkulu",
+        "18": "Lampung",
+        "19": "KepulauanBangkaBelitung",
+        "21": "KepulauanRiau",
+        "31": "DKIJakarta",
+        "32": "JawaBarat",
+        "33": "JawaTengah",
+        "34": "DIYogyakarta",
+        "35": "JawaTimur",
+        "36": "Banten",
+        "51": "Bali",
+        "52": "NusaTenggaraBarat",
+        "53": "NusaTenggaraTimur",
+        "61": "KalimantanBarat",
+        "62": "KalimantanTengah",
+        "63": "KalimantanSelatan",
+        "64": "KalimantanTimur",
+        "65": "KalimantanUtara",
+        "71": "SulawesiUtara",
+        "72": "SulawesiTengah",
+        "73": "SulawesiSelatan",
+        "74": "SulawesiTenggara",
+        "75": "Gorontalo",
+        "76": "SulawesiBarat",
+        "81": "Maluku",
+        "82": "MalukuUtara",
+        "91": "PapuaBarat",
+        "94": "Papua"
+    }
+    return provinces.get(code, "JawaTimur")
 
 def get_bmkg_weather_description(code: int) -> str:
     """Convert BMKG weather code to description"""
