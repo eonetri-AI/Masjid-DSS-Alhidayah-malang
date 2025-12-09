@@ -937,6 +937,73 @@ def parse_gempa_coordinates(coord_str: str) -> tuple:
     
     return None
 
+
+@api_router.get("/weather-forecast")
+async def get_weather_forecast():
+    """Get hourly weather forecast for prayer times"""
+    try:
+        # Get location from settings
+        settings = await settings_collection.find_one()
+        if not settings:
+            raise HTTPException(status_code=404, detail="Settings not found")
+        
+        lat = settings.get("latitude", -7.9666)
+        lon = settings.get("longitude", 112.6326)
+        
+        # Get hourly forecast from Open-Meteo
+        forecast_url = (
+            f"https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}"
+            f"&hourly=temperature_2m,precipitation,weather_code"
+            f"&timezone=Asia/Jakarta"
+            f"&forecast_days=1"
+        )
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(forecast_url)
+            
+            if response.status_code == 200:
+                data = response.json()
+                hourly = data.get("hourly", {})
+                times = hourly.get("time", [])
+                temps = hourly.get("temperature_2m", [])
+                precips = hourly.get("precipitation", [])
+                weather_codes = hourly.get("weather_code", [])
+                
+                # Create hourly forecast dictionary
+                forecast_by_hour = {}
+                for i, time_str in enumerate(times):
+                    # Extract hour from ISO format (e.g., "2025-12-09T14:00")
+                    hour = int(time_str.split("T")[1].split(":")[0])
+                    
+                    forecast_by_hour[hour] = {
+                        "temperature": int(temps[i]) if i < len(temps) else 28,
+                        "precipitation": precips[i] if i < len(precips) else 0,
+                        "weather_code": weather_codes[i] if i < len(weather_codes) else 0,
+                        "description": get_wmo_weather_description(weather_codes[i] if i < len(weather_codes) else 0),
+                        "icon": get_weather_icon(weather_codes[i] if i < len(weather_codes) else 0)
+                    }
+                
+                logging.info(f"Weather forecast fetched: {len(forecast_by_hour)} hours")
+                
+                return {
+                    "success": True,
+                    "forecast": forecast_by_hour
+                }
+        
+        # Fallback
+        return {
+            "success": False,
+            "forecast": {}
+        }
+            
+    except Exception as e:
+        logging.error(f"Error fetching weather forecast: {e}")
+        return {
+            "success": False,
+            "forecast": {}
+        }
+
 @api_router.get("/disaster-warnings")
 async def get_disaster_warnings(demo: bool = False):
     """Get disaster warnings from BMKG with location filtering"""
