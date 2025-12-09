@@ -82,6 +82,15 @@
   color: #0F172A;
 }
 
+.display-container.theme-bright .prayer-weather-icon {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.display-container.theme-bright .weather-desc-short {
+  color: #1E40AF;
+}
+
 .display-container.theme-bright .announcements-ticker {
   background: #1E40AF;
   border-top-color: rgba(59, 130, 246, 0.5);
