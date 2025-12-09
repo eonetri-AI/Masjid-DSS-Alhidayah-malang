@@ -846,6 +846,43 @@ def get_bmkg_weather_description(code: int) -> str:
     }
     return weather_codes.get(code, "Cerah Berawan")
 
+def get_wmo_weather_description(code: int) -> str:
+    """
+    Convert WMO weather code to Indonesian description
+    WMO codes: https://open-meteo.com/en/docs
+    """
+    weather_codes = {
+        0: "Cerah",
+        1: "Cerah Berawan",
+        2: "Berawan Sebagian",
+        3: "Berawan",
+        45: "Kabut",
+        48: "Kabut Tebal",
+        51: "Gerimis Ringan",
+        53: "Gerimis Sedang",
+        55: "Gerimis Lebat",
+        56: "Gerimis Beku Ringan",
+        57: "Gerimis Beku Lebat",
+        61: "Hujan Ringan",
+        63: "Hujan Sedang",
+        65: "Hujan Lebat",
+        66: "Hujan Beku Ringan",
+        67: "Hujan Beku Lebat",
+        71: "Salju Ringan",
+        73: "Salju Sedang",
+        75: "Salju Lebat",
+        77: "Butiran Salju",
+        80: "Hujan Lokal Ringan",
+        81: "Hujan Lokal Sedang",
+        82: "Hujan Lokal Lebat",
+        85: "Salju Lokal Ringan",
+        86: "Salju Lokal Lebat",
+        95: "Hujan Petir",
+        96: "Hujan Petir dengan Hujan Es Ringan",
+        99: "Hujan Petir dengan Hujan Es Lebat"
+    }
+    return weather_codes.get(code, "Tidak Diketahui")
+
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calculate the great circle distance between two points on the earth (in kilometers)
