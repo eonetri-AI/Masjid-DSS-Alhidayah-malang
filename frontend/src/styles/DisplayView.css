@@ -575,6 +575,41 @@
   margin-top: 0.25rem;
 }
 
+/* Weather icon on prayer cards */
+.prayer-weather-icon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.35rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.weather-emoji {
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.weather-desc-short {
+  font-size: 0.55rem;
+  color: #E2E8F0;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.prayer-card.active .prayer-weather-icon {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
 /* Quran Section */
 .quran-section {
   grid-column: 1 / 7;
