@@ -895,6 +895,32 @@ def get_wmo_weather_description(code: int) -> str:
     }
     return weather_codes.get(code, "Tidak Diketahui")
 
+def get_weather_icon(code: int) -> str:
+    """
+    Get weather emoji icon based on WMO weather code
+    """
+    icon_map = {
+        0: "☀️",     # Cerah
+        1: "🌤️",    # Cerah Berawan
+        2: "⛅",     # Berawan Sebagian
+        3: "☁️",     # Berawan
+        45: "🌫️",   # Kabut
+        48: "🌫️",   # Kabut Tebal
+        51: "🌦️",   # Gerimis Ringan
+        53: "🌦️",   # Gerimis Sedang
+        55: "🌧️",   # Gerimis Lebat
+        61: "🌧️",   # Hujan Ringan
+        63: "🌧️",   # Hujan Sedang
+        65: "🌧️",   # Hujan Lebat
+        80: "🌧️",   # Hujan Lokal Ringan
+        81: "🌧️",   # Hujan Lokal Sedang
+        82: "⛈️",   # Hujan Lokal Lebat
+        95: "⛈️",   # Hujan Petir
+        96: "⛈️",   # Hujan Petir dengan Es
+        99: "⛈️"    # Hujan Petir dengan Es Lebat
+    }
+    return icon_map.get(code, "🌤️")
+
 def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     Calculate the great circle distance between two points on the earth (in kilometers)
