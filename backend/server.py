@@ -740,12 +740,41 @@ async def get_weather():
             except Exception as xml_error:
                 logging.warning(f"BMKG XML API error: {xml_error}")
         
-        # Fallback to default reasonable values
+        # Fallback to Open-Meteo API (free, reliable, no API key needed)
+        try:
+            logging.info(f"Trying Open-Meteo API fallback for {city_name}")
+            open_meteo_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&timezone=auto"
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(open_meteo_url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    current = data.get("current_weather", {})
+                    
+                    temp = int(current.get("temperature", 28))
+                    weather_code = current.get("weathercode", 0)
+                    
+                    # Convert WMO weather code to description
+                    weather_desc = get_wmo_weather_description(weather_code)
+                    
+                    logging.info(f"Open-Meteo Weather: {city_name} - {temp}°C, {weather_desc}")
+                    
+                    return {
+                        "temperature": temp,
+                        "humidity": 75,  # Open-Meteo doesn't provide humidity in free tier
+                        "description": weather_desc,
+                        "source": "Open-Meteo"
+                    }
+        except Exception as meteo_error:
+            logging.warning(f"Open-Meteo API error: {meteo_error}")
+        
+        # Last resort fallback
         return {
             "temperature": 28,
             "humidity": 75,
-            "description": "Cerah Berawan",
-            "source": "BMKG"
+            "description": "Tidak Ada Data",
+            "source": "Fallback"
         }
             
     except Exception as e:
