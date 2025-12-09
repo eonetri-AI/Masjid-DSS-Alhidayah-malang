@@ -227,14 +227,15 @@ const DisplayView = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const demoMode = urlParams.get('demo') === 'true';
       
-      const [timesRes, announcementsRes, versesRes, reportsRes, settingsRes, weatherRes, warningRes] = await Promise.all([
+      const [timesRes, announcementsRes, versesRes, reportsRes, settingsRes, weatherRes, warningRes, forecastRes] = await Promise.all([
         axios.get(`${API}/prayer-times`),
         axios.get(`${API}/announcements`),
         axios.get(`${API}/quran-verses`),
         axios.get(`${API}/financial-reports`),
         axios.get(`${API}/settings`),
         axios.get(`${API}/weather`),
-        axios.get(`${API}/disaster-warnings${demoMode ? '?demo=true' : ''}`)
+        axios.get(`${API}/disaster-warnings${demoMode ? '?demo=true' : ''}`),
+        axios.get(`${API}/weather-forecast`)
       ]);
 
       setPrayerTimes(timesRes.data);
@@ -244,6 +245,7 @@ const DisplayView = () => {
       setSettings(settingsRes.data);
       setWeather(weatherRes.data);
       setDisasterWarning(warningRes.data);
+      setWeatherForecast(forecastRes.data.success ? forecastRes.data.forecast : {});
     } catch (error) {
       console.error("Error fetching data:", error);
     }
