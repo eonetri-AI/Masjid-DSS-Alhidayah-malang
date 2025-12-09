@@ -251,14 +251,28 @@ const DisplayView = () => {
     }
   };
 
+  // Get weather forecast for a specific prayer time
+  const getWeatherForPrayerTime = (prayerTime) => {
+    if (!prayerTime || !weatherForecast || Object.keys(weatherForecast).length === 0) {
+      return null;
+    }
+    
+    // Extract hour from prayer time (HH:MM format)
+    const [hourStr] = prayerTime.split(':');
+    const hour = parseInt(hourStr, 10);
+    
+    // Get weather for that hour
+    return weatherForecast[hour] || null;
+  };
+
   const getPrayerArray = () => [
-    { name: "Imsya", time: prayerTimes?.imsya, iqomah: null },
-    { name: "Subuh", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr },
-    { name: "Syuruq", time: prayerTimes?.syuruq, iqomah: null },
-    { name: "Dzuhur", time: prayerTimes?.dhuhr, iqomah: prayerTimes?.iqomah_times?.dhuhr },
-    { name: "Ashar", time: prayerTimes?.asr, iqomah: prayerTimes?.iqomah_times?.asr },
-    { name: "Maghrib", time: prayerTimes?.maghrib, iqomah: prayerTimes?.iqomah_times?.maghrib },
-    { name: "Isya", time: prayerTimes?.isha, iqomah: prayerTimes?.iqomah_times?.isha }
+    { name: "Imsya", time: prayerTimes?.imsya, iqomah: null, weather: getWeatherForPrayerTime(prayerTimes?.imsya) },
+    { name: "Subuh", time: prayerTimes?.fajr, iqomah: prayerTimes?.iqomah_times?.fajr, weather: getWeatherForPrayerTime(prayerTimes?.fajr) },
+    { name: "Syuruq", time: prayerTimes?.syuruq, iqomah: null, weather: getWeatherForPrayerTime(prayerTimes?.syuruq) },
+    { name: "Dzuhur", time: prayerTimes?.dhuhr, iqomah: prayerTimes?.iqomah_times?.dhuhr, weather: getWeatherForPrayerTime(prayerTimes?.dhuhr) },
+    { name: "Ashar", time: prayerTimes?.asr, iqomah: prayerTimes?.iqomah_times?.asr, weather: getWeatherForPrayerTime(prayerTimes?.asr) },
+    { name: "Maghrib", time: prayerTimes?.maghrib, iqomah: prayerTimes?.iqomah_times?.maghrib, weather: getWeatherForPrayerTime(prayerTimes?.maghrib) },
+    { name: "Isya", time: prayerTimes?.isha, iqomah: prayerTimes?.iqomah_times?.isha, weather: getWeatherForPrayerTime(prayerTimes?.isha) }
   ];
 
   if (!prayerTimes) {
