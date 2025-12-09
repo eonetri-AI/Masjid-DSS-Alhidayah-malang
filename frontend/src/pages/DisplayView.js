@@ -222,6 +222,10 @@ const DisplayView = () => {
 
   const fetchData = async () => {
     try {
+      // Check if demo mode is enabled via URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      const demoMode = urlParams.get('demo') === 'true';
+      
       const [timesRes, announcementsRes, versesRes, reportsRes, settingsRes, weatherRes, warningRes] = await Promise.all([
         axios.get(`${API}/prayer-times`),
         axios.get(`${API}/announcements`),
@@ -229,7 +233,7 @@ const DisplayView = () => {
         axios.get(`${API}/financial-reports`),
         axios.get(`${API}/settings`),
         axios.get(`${API}/weather`),
-        axios.get(`${API}/disaster-warnings`)
+        axios.get(`${API}/disaster-warnings${demoMode ? '?demo=true' : ''}`)
       ]);
 
       setPrayerTimes(timesRes.data);
