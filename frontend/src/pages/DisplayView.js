@@ -326,20 +326,39 @@ const DisplayView = () => {
         </div>
 
         {/* Disaster Warning Banner */}
-        {disasterWarning?.has_warning && (
-          <div className="disaster-warning-banner">
-            <div className="warning-icon">⚠️</div>
-            <div className="warning-content">
-              <div className="warning-title">PERINGATAN GEMPA BUMI</div>
-              <div className="warning-details">
-                <span className="warning-magnitude">M{disasterWarning.magnitude}</span>
-                <span className="warning-location">{disasterWarning.location}</span>
-                <span className="warning-time">{disasterWarning.time}</span>
-                {disasterWarning.potential && (
-                  <span className="warning-potential">{disasterWarning.potential}</span>
-                )}
+        {disasterWarning?.has_warning && disasterWarning.warnings && (
+          <div className="disaster-warnings-container">
+            {disasterWarning.warnings.map((warning, index) => (
+              <div 
+                key={index} 
+                className={`disaster-warning-banner ${warning.type === 'cuaca' ? 'warning-weather' : 'warning-earthquake'}`}
+              >
+                <div className="warning-icon">
+                  {warning.type === 'cuaca' ? '🌧️' : '⚠️'}
+                </div>
+                <div className="warning-content">
+                  <div className="warning-title">{warning.title}</div>
+                  {warning.type === 'gempa' ? (
+                    <div className="warning-details">
+                      <span className="warning-magnitude">M{warning.magnitude}</span>
+                      <span className="warning-location">{warning.location}</span>
+                      <span className="warning-time">{warning.time}</span>
+                      {warning.distance && (
+                        <span className="warning-distance">{warning.distance}</span>
+                      )}
+                      {warning.potential && (
+                        <span className="warning-potential">{warning.potential}</span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="warning-details">
+                      <span className="warning-condition">{warning.condition}</span>
+                      <span className="warning-message">{warning.message}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         )}
 
