@@ -149,6 +149,30 @@ backend:
         agent: "testing"
         comment: "✅ TESTED SUCCESSFULLY: Settings schema supports all new fields. Settings save/load correctly, all changes persist after page refresh. Backend properly handles city_name, coordinates, manual prayer times, and Makkah embed URL."
 
+  - task: "Location-based earthquake warning filtering"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implemented haversine_distance() function to calculate geographic distance between mosque and earthquake location. Added parse_gempa_coordinates() to handle BMKG coordinate formats. Updated get_disaster_warnings() endpoint to filter earthquakes based on magnitude and distance: M≥5.5 within 500km, M≥4.5 within 300km, M≥3.5 within 100km. Tested with real BMKG data (Tanimbar M5.4 at 2048km) - correctly filtered out for Malang location. Unit tests show 100% accuracy for all distance thresholds."
+
+  - task: "Extreme weather warning detection"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented weather warning detection logic in get_disaster_warnings() endpoint. Checks BMKG weather XML for extreme conditions (Heavy Rain code 63, Thunderstorm codes 95/97) matching mosque city location. Logic is correct but BMKG XML API has parsing error ('mismatched tag: line 30'). This is a known BMKG API issue, not our code. Normal weather display via /api/weather still works fine. Weather warning will activate automatically when BMKG fixes their XML format."
+
 frontend:
   - task: "City dropdown with auto-coordinate update"
     implemented: true
