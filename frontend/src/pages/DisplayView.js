@@ -415,6 +415,14 @@ const DisplayView = () => {
               }`}
               data-testid={`prayer-card-${prayer.name.toLowerCase()}`}
             >
+              {/* Weather icon in top right corner */}
+              {prayer.weather && (
+                <div className="prayer-weather-icon" title={prayer.weather.description}>
+                  <span className="weather-emoji">{prayer.weather.icon}</span>
+                  <span className="weather-desc-short">{prayer.weather.description}</span>
+                </div>
+              )}
+              
               <div className="prayer-name">{prayer.name}</div>
               <div className="prayer-time">{prayer.time}</div>
               {prayer.iqomah && (
