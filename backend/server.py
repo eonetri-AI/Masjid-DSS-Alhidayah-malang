@@ -860,8 +860,41 @@ def parse_gempa_coordinates(coord_str: str) -> tuple:
     return None
 
 @api_router.get("/disaster-warnings")
-async def get_disaster_warnings():
+async def get_disaster_warnings(demo: bool = False):
     """Get disaster warnings from BMKG with location filtering"""
+    
+    # Demo mode for testing UI
+    if demo:
+        return {
+            "has_warning": True,
+            "warnings": [
+                {
+                    "type": "gempa",
+                    "title": "PERINGATAN GEMPA BUMI",
+                    "magnitude": "5.8",
+                    "depth": "10 km",
+                    "location": "25 km Barat Daya Malang",
+                    "time": "09 Des 2025 10:45:30 WIB",
+                    "distance": "25 km dari lokasi Anda",
+                    "potential": "Tidak berpotensi tsunami"
+                },
+                {
+                    "type": "cuaca",
+                    "title": "PERINGATAN CUACA EKSTRIM",
+                    "condition": "Hujan Lebat",
+                    "location": "Malang",
+                    "message": "Waspadai Hujan Lebat di wilayah Malang"
+                },
+                {
+                    "type": "cuaca",
+                    "title": "PERINGATAN CUACA EKSTRIM",
+                    "condition": "Hujan Petir",
+                    "location": "Malang",
+                    "message": "Waspadai Hujan Petir di wilayah Malang"
+                }
+            ]
+        }
+    
     try:
         # Get mosque location from settings
         settings = await settings_collection.find_one({}, {"_id": 0})
