@@ -743,26 +743,38 @@ async def get_weather():
         # Fallback to Open-Meteo API (free, reliable, no API key needed)
         try:
             logging.info(f"Trying Open-Meteo API fallback for {city_name}")
-            open_meteo_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&timezone=auto"
+            # Use current weather with additional parameters for more accuracy
+            open_meteo_url = (
+                f"https://api.open-meteo.com/v1/forecast"
+                f"?latitude={lat}&longitude={lon}"
+                f"&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code"
+                f"&timezone=Asia/Jakarta"
+            )
             
             async with httpx.AsyncClient(timeout=10.0) as client:
                 response = await client.get(open_meteo_url)
                 
                 if response.status_code == 200:
                     data = response.json()
-                    current = data.get("current_weather", {})
+                    current = data.get("current", {})
                     
-                    temp = int(current.get("temperature", 28))
-                    weather_code = current.get("weathercode", 0)
+                    temp = int(current.get("temperature_2m", 28))
+                    humidity = int(current.get("relative_humidity_2m", 75))
+                    weather_code = current.get("weather_code", 0)
+                    rain_mm = current.get("rain", 0.0)
                     
                     # Convert WMO weather code to description
                     weather_desc = get_wmo_weather_description(weather_code)
                     
-                    logging.info(f"Open-Meteo Weather: {city_name} - {temp}°C, {weather_desc}")
+                    # Add rain indicator if raining
+                    if rain_mm > 0:
+                        weather_desc = f"{weather_desc} (Hujan {rain_mm}mm)"
+                    
+                    logging.info(f"Open-Meteo Weather: {city_name} - {temp}°C, {humidity}%, {weather_desc} (Code: {weather_code})")
                     
                     return {
                         "temperature": temp,
-                        "humidity": 75,  # Open-Meteo doesn't provide humidity in free tier
+                        "humidity": humidity,
                         "description": weather_desc,
                         "source": "Open-Meteo"
                     }
