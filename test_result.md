@@ -264,6 +264,18 @@ frontend:
         agent: "testing"
         comment: "✅ TESTED SUCCESSFULLY: City badge displays correctly on main screen. Shows 'JAKARTA' after city change in admin panel. Badge is properly styled and positioned in mosque header."
 
+  - task: "Multiple disaster warnings display (UI)"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/pages/DisplayView.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Updated DisplayView.js to support multiple warnings from backend. Changed from single disaster-warning-banner to disaster-warnings-container with array mapping. Each warning type (gempa/cuaca) has distinct styling and icons (⚠️ for earthquake, 🌧️ for weather). Added CSS classes: warning-earthquake (red gradient) and warning-weather (orange gradient). Earthquake warnings show magnitude, location, distance, time, and tsunami potential. Weather warnings show condition type and message. Tested display rendering - no warnings currently shown because earthquakes are filtered out by distance. Frontend is fully ready to display warnings when conditions are met."
+
 metadata:
   created_by: "main_agent"
   version: "1.0"
