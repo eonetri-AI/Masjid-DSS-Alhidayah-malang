@@ -538,6 +538,7 @@
   flex-direction: column;
   justify-content: center;
   min-height: 0;
+  position: relative;
 }
 
 .prayer-card.active {
