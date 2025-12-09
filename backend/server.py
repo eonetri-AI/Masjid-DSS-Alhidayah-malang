@@ -817,36 +817,195 @@ def get_bmkg_weather_description(code: int) -> str:
     }
     return weather_codes.get(code, "Cerah Berawan")
 
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate the great circle distance between two points on the earth (in kilometers)
+    """
+    from math import radians, cos, sin, asin, sqrt
+    
+    # Convert decimal degrees to radians
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    
+    # Radius of earth in kilometers
+    r = 6371
+    
+    return c * r
+
+def parse_gempa_coordinates(coord_str: str) -> tuple:
+    """
+    Parse BMKG earthquake coordinates string
+    Format examples: "-7.26,107.89" or "7.26 LS,107.89 BT"
+    """
+    try:
+        # Remove directional indicators and clean string
+        coord_str = coord_str.replace(" LS", "").replace(" LU", "")
+        coord_str = coord_str.replace(" BT", "").replace(" BB", "")
+        coord_str = coord_str.strip()
+        
+        # Split by comma
+        parts = coord_str.split(",")
+        if len(parts) == 2:
+            lat = float(parts[0].strip())
+            lon = float(parts[1].strip())
+            return (lat, lon)
+    except Exception as e:
+        logging.error(f"Error parsing coordinates '{coord_str}': {e}")
+    
+    return None
+
 @api_router.get("/disaster-warnings")
 async def get_disaster_warnings():
-    """Get disaster warnings from BMKG"""
+    """Get disaster warnings from BMKG with location filtering"""
     try:
-        # BMKG EWS (Early Warning System) API
-        url = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json"
+        # Get mosque location from settings
+        settings = await settings_collection.find_one({}, {"_id": 0})
+        if not settings:
+            mosque_lat = -7.9666  # Default Malang
+            mosque_lon = 112.6326
+        else:
+            mosque_lat = settings.get("latitude", -7.9666)
+            mosque_lon = settings.get("longitude", 112.6326)
+        
+        warnings = []
+        
+        # 1. Check for earthquake warnings
+        gempa_url = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json"
         
         async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(url)
-            
-            if response.status_code == 200:
-                data = response.json()
-                gempa = data.get("Infogempa", {}).get("gempa", {})
+            try:
+                response = await client.get(gempa_url)
                 
-                if gempa:
-                    return {
-                        "has_warning": True,
-                        "type": "gempa",
-                        "magnitude": gempa.get("Magnitude", ""),
-                        "depth": gempa.get("Kedalaman", ""),
-                        "location": gempa.get("Wilayah", ""),
-                        "time": gempa.get("Tanggal", "") + " " + gempa.get("Jam", ""),
-                        "potential": gempa.get("Potensi", ""),
-                        "coordinates": gempa.get("Coordinates", "")
-                    }
+                if response.status_code == 200:
+                    data = response.json()
+                    gempa = data.get("Infogempa", {}).get("gempa", {})
+                    
+                    if gempa:
+                        magnitude_str = gempa.get("Magnitude", "0")
+                        try:
+                            magnitude = float(magnitude_str)
+                        except:
+                            magnitude = 0.0
+                        
+                        # Parse earthquake coordinates
+                        coord_str = gempa.get("Coordinates", "")
+                        gempa_coords = parse_gempa_coordinates(coord_str)
+                        
+                        if gempa_coords:
+                            gempa_lat, gempa_lon = gempa_coords
+                            distance_km = haversine_distance(mosque_lat, mosque_lon, gempa_lat, gempa_lon)
+                            
+                            # Filter based on magnitude and distance
+                            show_warning = False
+                            if magnitude >= 5.5 and distance_km <= 500:
+                                show_warning = True  # Large earthquake within 500km
+                            elif magnitude >= 4.5 and distance_km <= 300:
+                                show_warning = True  # Medium earthquake within 300km
+                            elif magnitude >= 3.5 and distance_km <= 100:
+                                show_warning = True  # Small earthquake nearby
+                            
+                            if show_warning:
+                                warnings.append({
+                                    "type": "gempa",
+                                    "title": "PERINGATAN GEMPA BUMI",
+                                    "magnitude": magnitude_str,
+                                    "depth": gempa.get("Kedalaman", ""),
+                                    "location": gempa.get("Wilayah", ""),
+                                    "time": gempa.get("Tanggal", "") + " " + gempa.get("Jam", ""),
+                                    "potential": gempa.get("Potensi", ""),
+                                    "distance": f"{int(distance_km)} km dari lokasi Anda"
+                                })
+                                logging.info(f"Earthquake warning: M{magnitude} at {distance_km:.1f}km")
+                        else:
+                            # If can't parse coordinates, show if magnitude is significant
+                            if magnitude >= 5.5:
+                                warnings.append({
+                                    "type": "gempa",
+                                    "title": "PERINGATAN GEMPA BUMI",
+                                    "magnitude": magnitude_str,
+                                    "depth": gempa.get("Kedalaman", ""),
+                                    "location": gempa.get("Wilayah", ""),
+                                    "time": gempa.get("Tanggal", "") + " " + gempa.get("Jam", ""),
+                                    "potential": gempa.get("Potensi", ""),
+                                    "distance": ""
+                                })
+            except Exception as gempa_error:
+                logging.warning(f"Error fetching earthquake data: {gempa_error}")
         
-        return {
-            "has_warning": False,
-            "message": "Tidak ada peringatan bencana saat ini"
-        }
+        # 2. Check for extreme weather warnings
+        try:
+            city_name = settings.get("city_name", "Malang") if settings else "Malang"
+            
+            # Map cities to BMKG province codes
+            province_codes = {
+                "Jakarta": "31", "Bandung": "32", "Yogyakarta": "34", "Semarang": "33",
+                "Surabaya": "35", "Malang": "35", "Denpasar": "51", "Makassar": "73",
+                "Medan": "12", "Palembang": "16", "Pontianak": "61", "Banjarmasin": "63",
+                "Balikpapan": "64", "Manado": "71", "Pekanbaru": "14", "Banyuwangi": "35"
+            }
+            
+            province_code = province_codes.get(city_name, "35")
+            weather_url = f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{get_province_name(province_code)}.xml"
+            
+            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                response = await client.get(weather_url)
+                
+                if response.status_code == 200:
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(response.content)
+                    
+                    # Find matching city/area
+                    for area in root.findall(".//area"):
+                        area_desc = area.get("description", "").lower()
+                        
+                        if city_name.lower() in area_desc or area_desc in city_name.lower():
+                            # Check for extreme weather conditions
+                            weather_param = area.find(".//parameter[@id='weather']")
+                            
+                            if weather_param is not None:
+                                timerange = weather_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        weather_code = int(values[0].text)
+                                        
+                                        # Extreme weather codes: 61, 63, 95, 97 (heavy rain, thunderstorm)
+                                        extreme_weather = {
+                                            61: "Hujan Sedang",
+                                            63: "Hujan Lebat",
+                                            95: "Hujan Petir",
+                                            97: "Hujan Petir Kuat"
+                                        }
+                                        
+                                        if weather_code in extreme_weather:
+                                            warnings.append({
+                                                "type": "cuaca",
+                                                "title": "PERINGATAN CUACA EKSTRIM",
+                                                "condition": extreme_weather[weather_code],
+                                                "location": city_name,
+                                                "message": f"Waspadai {extreme_weather[weather_code]} di wilayah {city_name}"
+                                            })
+                                            logging.info(f"Weather warning: {extreme_weather[weather_code]} in {city_name}")
+                            break
+        except Exception as weather_error:
+            logging.warning(f"Error checking extreme weather: {weather_error}")
+        
+        # Return warnings
+        if warnings:
+            return {
+                "has_warning": True,
+                "warnings": warnings
+            }
+        else:
+            return {
+                "has_warning": False,
+                "message": "Tidak ada peringatan bencana saat ini"
+            }
             
     except Exception as e:
         logging.error(f"Error fetching disaster warnings: {e}")
