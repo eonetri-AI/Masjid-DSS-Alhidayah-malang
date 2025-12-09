@@ -860,40 +860,40 @@ def get_bmkg_weather_description(code: int) -> str:
 
 def get_wmo_weather_description(code: int) -> str:
     """
-    Convert WMO weather code to Indonesian description
+    Convert WMO weather code to Indonesian description (short version for prayer cards)
     WMO codes: https://open-meteo.com/en/docs
     """
     weather_codes = {
         0: "Cerah",
         1: "Cerah Berawan",
-        2: "Berawan Sebagian",
+        2: "Berawan",
         3: "Berawan",
         45: "Kabut",
-        48: "Kabut Tebal",
-        51: "Gerimis Ringan",
-        53: "Gerimis Sedang",
+        48: "Kabut",
+        51: "Gerimis",
+        53: "Gerimis",
         55: "Gerimis Lebat",
-        56: "Gerimis Beku Ringan",
-        57: "Gerimis Beku Lebat",
+        56: "Gerimis",
+        57: "Gerimis",
         61: "Hujan Ringan",
         63: "Hujan Sedang",
         65: "Hujan Lebat",
-        66: "Hujan Beku Ringan",
-        67: "Hujan Beku Lebat",
-        71: "Salju Ringan",
-        73: "Salju Sedang",
+        66: "Hujan",
+        67: "Hujan",
+        71: "Salju",
+        73: "Salju",
         75: "Salju Lebat",
-        77: "Butiran Salju",
-        80: "Hujan Lokal Ringan",
-        81: "Hujan Lokal Sedang",
-        82: "Hujan Lokal Lebat",
-        85: "Salju Lokal Ringan",
-        86: "Salju Lokal Lebat",
+        77: "Salju",
+        80: "Hujan",
+        81: "Hujan",
+        82: "Hujan Lebat",
+        85: "Salju",
+        86: "Salju Lebat",
         95: "Hujan Petir",
-        96: "Hujan Petir dengan Hujan Es Ringan",
-        99: "Hujan Petir dengan Hujan Es Lebat"
+        96: "Hujan Petir",
+        99: "Hujan Petir"
     }
-    return weather_codes.get(code, "Tidak Diketahui")
+    return weather_codes.get(code, "Cerah")
 
 def get_weather_icon(code: int) -> str:
     """
