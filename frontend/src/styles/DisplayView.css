@@ -675,6 +675,9 @@
   backdrop-filter: blur(12px);
   height: 100%;
   min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .financial-title {
