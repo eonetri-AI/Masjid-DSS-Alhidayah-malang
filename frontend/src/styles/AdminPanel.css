@@ -25,6 +25,21 @@
 .header-buttons {
   display: flex;
   gap: 0.75rem;
+  align-items: center;
+}
+
+.admin-city-badge {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.02em;
 }
 
 .admin-tabs {

@@ -12,6 +12,7 @@ from datetime import datetime, timezone, timedelta
 from hijri_converter import Hijri, Gregorian
 import pytz
 import httpx
+import locale
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -57,6 +58,7 @@ class MosqueSettings(BaseModel):
     theme: str = "midnight"
     background_image: str = ""
     makkah_embed_url: str = ""
+    font_size: str = "large"
     admin_password: str = "admin123"
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -76,6 +78,7 @@ class MosqueSettingsUpdate(BaseModel):
     theme: Optional[str] = None
     background_image: Optional[str] = None
     makkah_embed_url: Optional[str] = None
+    font_size: Optional[str] = None
     admin_password: Optional[str] = None
 
 class PasswordVerify(BaseModel):
@@ -140,10 +143,86 @@ class FinancialReportCreate(BaseModel):
     pengeluaran: float
     period: str = ""
 
+# ============== HELPER FUNCTIONS ==============
+
+def format_date_indonesian(dt: datetime) -> str:
+    """Format date in Indonesian"""
+    days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+    months = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ]
+    
+    day_name = days[dt.weekday()]
+    day = dt.day
+    month_name = months[dt.month - 1]
+    year = dt.year
+    
+    return f"{day_name}, {day} {month_name} {year}"
+
 # ============== PRAYER TIMES SERVICE ==============
 
+async def calculate_prayer_times_muslimsalat(latitude: float, longitude: float, tz_str: str, imsya_offset: int = 10):
+    """Calculate prayer times using MuslimSalat API (accurate for Indonesia)"""
+    try:
+        tz = pytz.timezone(tz_str)
+        now = datetime.now(tz)
+        
+        # MuslimSalat API - more accurate for Southeast Asia
+        url = "https://muslimsalat.com/daily.json"
+        params = {
+            "latitude": latitude,
+            "longitude": longitude
+        }
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            data = response.json()
+        
+        if data.get("items"):
+            items = data["items"][0]  # Get today's timings
+            
+            # Extract prayer times (24h format)
+            fajr_time = items["fajr"]
+            sunrise_time = items["shurooq"]
+            dhuhr_time = items["dhuhr"]
+            asr_time = items["asr"]
+            maghrib_time = items["maghrib"]
+            isha_time = items["isha"]
+            
+            # Calculate Imsya
+            fajr_dt = datetime.strptime(fajr_time, "%H:%M")
+            imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
+            imsya_time = imsya_dt.strftime("%H:%M")
+            
+            # Convert Gregorian to Hijri
+            hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
+            hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
+            
+            logging.info(f"MuslimSalat API: Fajr {fajr_time}, Dhuhr {dhuhr_time}, Maghrib {maghrib_time}")
+            
+            return {
+                "fajr": fajr_time,
+                "imsya": imsya_time,
+                "sunrise": sunrise_time,
+                "dhuhr": dhuhr_time,
+                "asr": asr_time,
+                "maghrib": maghrib_time,
+                "isha": isha_time,
+                "gregorian_date": format_date_indonesian(now),
+                "hijri_date": hijri_str,
+                "current_time": now.strftime("%H:%M:%S")
+            }
+        else:
+            raise Exception(f"MuslimSalat API error: {data}")
+            
+    except Exception as e:
+        logging.error(f"Error with MuslimSalat API, falling back to Aladhan: {e}")
+        # Fallback to Aladhan
+        return await calculate_prayer_times_aladhan(latitude, longitude, tz_str, "MAKKAH", imsya_offset)
+
 async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_str: str, method: str = "ISNA", imsya_offset: int = 10) -> Dict:
-    """Calculate prayer times using Aladhan API"""
+    """Calculate prayer times using Aladhan API (fallback)"""
     try:
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
@@ -155,13 +234,16 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
             "EGYPTIAN": 5,  # Egyptian General Authority
             "KARACHI": 1,   # University of Islamic Sciences, Karachi
             "MAKKAH": 4,    # Umm Al-Qura University, Makkah
-            "TEHRAN": 7     # Institute of Geophysics, University of Tehran
+            "TEHRAN": 7,    # Institute of Geophysics, University of Tehran
+            "KEMENAG": 11   # Kementerian Agama RI (best for Indonesia)
         }
         
-        method_num = method_map.get(method, 2)
+        method_num = method_map.get(method, 11)  # Default to Kemenag for Indonesia
         
-        # Call Aladhan API
-        url = f"http://api.aladhan.com/v1/timings/{int(now.timestamp())}"
+        # Call Aladhan API with custom parameters for Indonesia
+        # Using timingsByCity endpoint for better accuracy
+        date_str = now.strftime("%d-%m-%Y")
+        url = "https://api.aladhan.com/v1/timings"
         params = {
             "latitude": latitude,
             "longitude": longitude,
@@ -169,8 +251,8 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
             "school": 0  # Shafi (for Indonesia)
         }
         
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(url, params=params)
+        async with httpx.AsyncClient(timeout=10.0, follow_redirects=True) as client:
+            response = await client.get(f"{url}/{date_str}", params=params)
             data = response.json()
         
         if data.get("code") == 200:
@@ -203,37 +285,31 @@ async def calculate_prayer_times_aladhan(latitude: float, longitude: float, tz_s
                 "asr": asr_time,
                 "maghrib": maghrib_time,
                 "isha": isha_time,
-                "gregorian_date": now.strftime("%A, %d %B %Y"),
+                "gregorian_date": format_date_indonesian(now),
                 "hijri_date": hijri_str,
                 "current_time": now.strftime("%H:%M:%S")
             }
         else:
-            raise Exception("Aladhan API returned error")
+            raise Exception(f"Aladhan API error: {data}")
             
     except Exception as e:
-        logging.error(f"Error fetching prayer times from Aladhan API: {e}")
-        import traceback
-        traceback.print_exc()
-        
-        # Fallback to default times
+        logging.error(f"Error calculating prayer times: {e}")
+        # Return default times as fallback
         tz = pytz.timezone(tz_str)
         now = datetime.now(tz)
         hijri_date = Gregorian(now.year, now.month, now.day).to_hijri()
-        
-        fajr_dt = datetime.strptime("04:30", "%H:%M")
-        imsya_dt = fajr_dt - timedelta(minutes=imsya_offset)
-        imsya_time = imsya_dt.strftime("%H:%M")
+        hijri_str = f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}"
         
         return {
             "fajr": "04:30",
-            "imsya": imsya_time,
+            "imsya": "04:20",
             "sunrise": "05:45",
             "dhuhr": "11:45",
             "asr": "15:15",
             "maghrib": "17:45",
             "isha": "19:00",
-            "gregorian_date": now.strftime("%A, %d %B %Y"),
-            "hijri_date": f"{hijri_date.day} {hijri_date.month_name()} {hijri_date.year}",
+            "gregorian_date": format_date_indonesian(now),
+            "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
         }
 
@@ -379,18 +455,18 @@ async def get_prayer_times():
             "asr": manual_times.get("asr", "15:15"),
             "maghrib": manual_times.get("maghrib", "17:45"),
             "isha": manual_times.get("isha", "19:00"),
-            "gregorian_date": now.strftime("%A, %d %B %Y"),
+            "gregorian_date": format_date_indonesian(now),
             "hijri_date": hijri_str,
             "current_time": now.strftime("%H:%M:%S")
         }
         logging.info("Using manual prayer times")
     else:
-        # Calculate prayer times using Aladhan API
+        # Calculate prayer times using Aladhan API with Kemenag method
         times = await calculate_prayer_times_aladhan(
             settings["latitude"],
             settings["longitude"],
             settings["timezone"],
-            settings["calculation_method"],
+            "KEMENAG",  # Use Kemenag method for Indonesia
             settings.get("imsya_offset", 10)
         )
     
@@ -573,52 +649,573 @@ async def upload_file(file: UploadFile = File(...)):
 # Weather API endpoint
 @api_router.get("/weather")
 async def get_weather():
-    """Get current weather"""
+    """Get weather data from BMKG Open Data"""
     try:
-        settings = await settings_collection.find_one({}, {"_id": 0})
+        # Get location from settings
+        settings = await settings_collection.find_one()
         if not settings:
-            settings = MosqueSettings().model_dump()
+            raise HTTPException(status_code=404, detail="Settings not found")
         
-        lat = settings["latitude"]
-        lon = settings["longitude"]
+        city_name = settings.get("city_name", "Malang")
+        lat = settings.get("latitude", -7.9666)
+        lon = settings.get("longitude", 112.6326)
         
-        # Using OpenWeatherMap free API
-        api_key = "895284fb2d2c50a520ea537456963d9c"  # Free demo key
-        url = f"http://api.openweathermap.org/data/2.5/weather"
-        params = {
-            "lat": lat,
-            "lon": lon,
-            "appid": api_key,
-            "units": "metric",
-            "lang": "id"
+        # Map cities to BMKG province codes
+        province_codes = {
+            "Jakarta": "31",
+            "Bandung": "32",
+            "Yogyakarta": "34",
+            "Semarang": "33",
+            "Surabaya": "35",
+            "Malang": "35",
+            "Denpasar": "51",
+            "Makassar": "73",
+            "Medan": "12",
+            "Palembang": "16",
+            "Pontianak": "61",
+            "Banjarmasin": "63",
+            "Balikpapan": "64",
+            "Manado": "71",
+            "Pekanbaru": "14",
+            "Banyuwangi": "35"
         }
         
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(url, params=params)
-            data = response.json()
+        province_code = province_codes.get(city_name, "35")
         
-        if response.status_code == 200:
-            return {
-                "temperature": round(data["main"]["temp"]),
-                "feels_like": round(data["main"]["feels_like"]),
-                "humidity": data["main"]["humidity"],
-                "description": data["weather"][0]["description"],
-                "icon": data["weather"][0]["icon"],
-                "wind_speed": data["wind"]["speed"]
-            }
-        else:
-            raise HTTPException(status_code=500, detail="Weather API error")
+        # Try BMKG Digital Forecast API
+        url = f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{get_province_name(province_code)}.xml"
+        
+        async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+            try:
+                response = await client.get(url)
+                
+                if response.status_code == 200:
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(response.content)
+                    
+                    # Find matching city/area
+                    for area in root.findall(".//area"):
+                        area_desc = area.get("description", "").lower()
+                        
+                        if city_name.lower() in area_desc or area_desc in city_name.lower():
+                            # Get temperature parameter
+                            temp_param = area.find(".//parameter[@id='t']")
+                            humidity_param = area.find(".//parameter[@id='hu']")
+                            weather_param = area.find(".//parameter[@id='weather']")
+                            
+                            temp = 28
+                            humidity = 75
+                            weather_desc = "Cerah Berawan"
+                            
+                            if temp_param is not None:
+                                timerange = temp_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        temp = int(float(values[0].text))
+                            
+                            if humidity_param is not None:
+                                timerange = humidity_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        humidity = int(float(values[0].text))
+                            
+                            if weather_param is not None:
+                                timerange = weather_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        weather_code = int(values[0].text)
+                                        weather_desc = get_bmkg_weather_description(weather_code)
+                            
+                            logging.info(f"BMKG Weather: {city_name} - {temp}°C, {weather_desc}")
+                            
+                            return {
+                                "temperature": temp,
+                                "humidity": humidity,
+                                "description": weather_desc,
+                                "source": "BMKG"
+                            }
+            except Exception as xml_error:
+                logging.warning(f"BMKG XML API error: {xml_error}")
+        
+        # Fallback to Open-Meteo API (free, reliable, no API key needed)
+        try:
+            logging.info(f"Trying Open-Meteo API fallback for {city_name}")
+            # Use current weather with additional parameters for more accuracy
+            open_meteo_url = (
+                f"https://api.open-meteo.com/v1/forecast"
+                f"?latitude={lat}&longitude={lon}"
+                f"&current=temperature_2m,relative_humidity_2m,precipitation,rain,weather_code"
+                f"&timezone=Asia/Jakarta"
+            )
             
-    except Exception as e:
-        logging.error(f"Error fetching weather: {e}")
-        # Return default weather data
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(open_meteo_url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    current = data.get("current", {})
+                    
+                    temp = int(current.get("temperature_2m", 28))
+                    humidity = int(current.get("relative_humidity_2m", 75))
+                    weather_code = current.get("weather_code", 0)
+                    rain_mm = current.get("rain", 0.0)
+                    
+                    # Convert WMO weather code to description
+                    weather_desc = get_wmo_weather_description(weather_code)
+                    
+                    # Add rain indicator if raining
+                    if rain_mm > 0:
+                        weather_desc = f"{weather_desc} (Hujan {rain_mm}mm)"
+                    
+                    logging.info(f"Open-Meteo Weather: {city_name} - {temp}°C, {humidity}%, {weather_desc} (Code: {weather_code})")
+                    
+                    return {
+                        "temperature": temp,
+                        "humidity": humidity,
+                        "description": weather_desc,
+                        "source": "Open-Meteo"
+                    }
+        except Exception as meteo_error:
+            logging.warning(f"Open-Meteo API error: {meteo_error}")
+        
+        # Last resort fallback
         return {
             "temperature": 28,
-            "feels_like": 30,
             "humidity": 75,
-            "description": "berawan",
-            "icon": "02d",
-            "wind_speed": 2.5
+            "description": "Tidak Ada Data",
+            "source": "Fallback"
+        }
+            
+    except Exception as e:
+        logging.error(f"Error fetching BMKG weather: {e}")
+        return {
+            "temperature": 28,
+            "humidity": 75,
+            "description": "Cerah Berawan",
+            "source": "BMKG"
+        }
+
+def get_province_name(code: str) -> str:
+    """Get province name for BMKG API"""
+    provinces = {
+        "11": "Aceh",
+        "12": "SumateraUtara",
+        "13": "SumateraBarat",
+        "14": "Riau",
+        "15": "Jambi",
+        "16": "SumateraSelatan",
+        "17": "Bengkulu",
+        "18": "Lampung",
+        "19": "KepulauanBangkaBelitung",
+        "21": "KepulauanRiau",
+        "31": "DKIJakarta",
+        "32": "JawaBarat",
+        "33": "JawaTengah",
+        "34": "DIYogyakarta",
+        "35": "JawaTimur",
+        "36": "Banten",
+        "51": "Bali",
+        "52": "NusaTenggaraBarat",
+        "53": "NusaTenggaraTimur",
+        "61": "KalimantanBarat",
+        "62": "KalimantanTengah",
+        "63": "KalimantanSelatan",
+        "64": "KalimantanTimur",
+        "65": "KalimantanUtara",
+        "71": "SulawesiUtara",
+        "72": "SulawesiTengah",
+        "73": "SulawesiSelatan",
+        "74": "SulawesiTenggara",
+        "75": "Gorontalo",
+        "76": "SulawesiBarat",
+        "81": "Maluku",
+        "82": "MalukuUtara",
+        "91": "PapuaBarat",
+        "94": "Papua"
+    }
+    return provinces.get(code, "JawaTimur")
+
+def get_bmkg_weather_description(code: int) -> str:
+    """Convert BMKG weather code to description"""
+    weather_codes = {
+        0: "Cerah",
+        1: "Cerah Berawan",
+        2: "Cerah Berawan",
+        3: "Berawan",
+        4: "Berawan Tebal",
+        5: "Udara Kabur",
+        10: "Asap",
+        45: "Kabut",
+        60: "Hujan Ringan",
+        61: "Hujan Sedang",
+        63: "Hujan Lebat",
+        80: "Hujan Lokal",
+        95: "Hujan Petir",
+        97: "Hujan Petir"
+    }
+    return weather_codes.get(code, "Cerah Berawan")
+
+def get_wmo_weather_description(code: int) -> str:
+    """
+    Convert WMO weather code to Indonesian description (short version for prayer cards)
+    WMO codes: https://open-meteo.com/en/docs
+    """
+    weather_codes = {
+        0: "Cerah",
+        1: "Cerah Berawan",
+        2: "Berawan",
+        3: "Berawan",
+        45: "Kabut",
+        48: "Kabut",
+        51: "Gerimis",
+        53: "Gerimis",
+        55: "Gerimis Lebat",
+        56: "Gerimis",
+        57: "Gerimis",
+        61: "Hujan Ringan",
+        63: "Hujan Sedang",
+        65: "Hujan Lebat",
+        66: "Hujan",
+        67: "Hujan",
+        71: "Salju",
+        73: "Salju",
+        75: "Salju Lebat",
+        77: "Salju",
+        80: "Hujan",
+        81: "Hujan",
+        82: "Hujan Lebat",
+        85: "Salju",
+        86: "Salju Lebat",
+        95: "Hujan Petir",
+        96: "Hujan Petir",
+        99: "Hujan Petir"
+    }
+    return weather_codes.get(code, "Cerah")
+
+def get_weather_icon(code: int) -> str:
+    """
+    Get weather emoji icon based on WMO weather code
+    """
+    icon_map = {
+        0: "☀️",     # Cerah
+        1: "🌤️",    # Cerah Berawan
+        2: "⛅",     # Berawan Sebagian
+        3: "☁️",     # Berawan
+        45: "🌫️",   # Kabut
+        48: "🌫️",   # Kabut Tebal
+        51: "🌦️",   # Gerimis Ringan
+        53: "🌦️",   # Gerimis Sedang
+        55: "🌧️",   # Gerimis Lebat
+        61: "🌧️",   # Hujan Ringan
+        63: "🌧️",   # Hujan Sedang
+        65: "🌧️",   # Hujan Lebat
+        80: "🌧️",   # Hujan Lokal Ringan
+        81: "🌧️",   # Hujan Lokal Sedang
+        82: "⛈️",   # Hujan Lokal Lebat
+        95: "⛈️",   # Hujan Petir
+        96: "⛈️",   # Hujan Petir dengan Es
+        99: "⛈️"    # Hujan Petir dengan Es Lebat
+    }
+    return icon_map.get(code, "🌤️")
+
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    Calculate the great circle distance between two points on the earth (in kilometers)
+    """
+    from math import radians, cos, sin, asin, sqrt
+    
+    # Convert decimal degrees to radians
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    
+    # Radius of earth in kilometers
+    r = 6371
+    
+    return c * r
+
+def parse_gempa_coordinates(coord_str: str) -> tuple:
+    """
+    Parse BMKG earthquake coordinates string
+    Format examples: "-7.26,107.89" or "7.26 LS,107.89 BT"
+    """
+    try:
+        # Remove directional indicators and clean string
+        coord_str = coord_str.replace(" LS", "").replace(" LU", "")
+        coord_str = coord_str.replace(" BT", "").replace(" BB", "")
+        coord_str = coord_str.strip()
+        
+        # Split by comma
+        parts = coord_str.split(",")
+        if len(parts) == 2:
+            lat = float(parts[0].strip())
+            lon = float(parts[1].strip())
+            return (lat, lon)
+    except Exception as e:
+        logging.error(f"Error parsing coordinates '{coord_str}': {e}")
+    
+    return None
+
+
+@api_router.get("/weather-forecast")
+async def get_weather_forecast():
+    """Get hourly weather forecast for prayer times"""
+    try:
+        # Get location from settings
+        settings = await settings_collection.find_one()
+        if not settings:
+            raise HTTPException(status_code=404, detail="Settings not found")
+        
+        lat = settings.get("latitude", -7.9666)
+        lon = settings.get("longitude", 112.6326)
+        
+        # Get hourly forecast from Open-Meteo
+        forecast_url = (
+            f"https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}"
+            f"&hourly=temperature_2m,precipitation,weather_code"
+            f"&timezone=Asia/Jakarta"
+            f"&forecast_days=1"
+        )
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(forecast_url)
+            
+            if response.status_code == 200:
+                data = response.json()
+                hourly = data.get("hourly", {})
+                times = hourly.get("time", [])
+                temps = hourly.get("temperature_2m", [])
+                precips = hourly.get("precipitation", [])
+                weather_codes = hourly.get("weather_code", [])
+                
+                # Create hourly forecast dictionary
+                forecast_by_hour = {}
+                for i, time_str in enumerate(times):
+                    # Extract hour from ISO format (e.g., "2025-12-09T14:00")
+                    hour = int(time_str.split("T")[1].split(":")[0])
+                    
+                    forecast_by_hour[hour] = {
+                        "temperature": int(temps[i]) if i < len(temps) else 28,
+                        "precipitation": precips[i] if i < len(precips) else 0,
+                        "weather_code": weather_codes[i] if i < len(weather_codes) else 0,
+                        "description": get_wmo_weather_description(weather_codes[i] if i < len(weather_codes) else 0),
+                        "icon": get_weather_icon(weather_codes[i] if i < len(weather_codes) else 0)
+                    }
+                
+                logging.info(f"Weather forecast fetched: {len(forecast_by_hour)} hours")
+                
+                return {
+                    "success": True,
+                    "forecast": forecast_by_hour
+                }
+        
+        # Fallback
+        return {
+            "success": False,
+            "forecast": {}
+        }
+            
+    except Exception as e:
+        logging.error(f"Error fetching weather forecast: {e}")
+        return {
+            "success": False,
+            "forecast": {}
+        }
+
+@api_router.get("/disaster-warnings")
+async def get_disaster_warnings(demo: bool = False):
+    """Get disaster warnings from BMKG with location filtering"""
+    
+    # Demo mode for testing UI
+    if demo:
+        return {
+            "has_warning": True,
+            "warnings": [
+                {
+                    "type": "gempa",
+                    "title": "PERINGATAN GEMPA BUMI",
+                    "magnitude": "5.8",
+                    "depth": "10 km",
+                    "location": "25 km Barat Daya Malang",
+                    "time": "09 Des 2025 10:45:30 WIB",
+                    "distance": "25 km dari lokasi Anda",
+                    "potential": "Tidak berpotensi tsunami"
+                },
+                {
+                    "type": "cuaca",
+                    "title": "PERINGATAN CUACA EKSTRIM",
+                    "condition": "Hujan Lebat",
+                    "location": "Malang",
+                    "message": "Waspadai Hujan Lebat di wilayah Malang"
+                },
+                {
+                    "type": "cuaca",
+                    "title": "PERINGATAN CUACA EKSTRIM",
+                    "condition": "Hujan Petir",
+                    "location": "Malang",
+                    "message": "Waspadai Hujan Petir di wilayah Malang"
+                }
+            ]
+        }
+    
+    try:
+        # Get mosque location from settings
+        settings = await settings_collection.find_one({}, {"_id": 0})
+        if not settings:
+            mosque_lat = -7.9666  # Default Malang
+            mosque_lon = 112.6326
+        else:
+            mosque_lat = settings.get("latitude", -7.9666)
+            mosque_lon = settings.get("longitude", 112.6326)
+        
+        warnings = []
+        
+        # 1. Check for earthquake warnings
+        gempa_url = "https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json"
+        
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                response = await client.get(gempa_url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    gempa = data.get("Infogempa", {}).get("gempa", {})
+                    
+                    if gempa:
+                        magnitude_str = gempa.get("Magnitude", "0")
+                        try:
+                            magnitude = float(magnitude_str)
+                        except:
+                            magnitude = 0.0
+                        
+                        # Parse earthquake coordinates
+                        coord_str = gempa.get("Coordinates", "")
+                        gempa_coords = parse_gempa_coordinates(coord_str)
+                        
+                        if gempa_coords:
+                            gempa_lat, gempa_lon = gempa_coords
+                            distance_km = haversine_distance(mosque_lat, mosque_lon, gempa_lat, gempa_lon)
+                            
+                            # Filter based on magnitude and distance
+                            show_warning = False
+                            if magnitude >= 5.5 and distance_km <= 500:
+                                show_warning = True  # Large earthquake within 500km
+                            elif magnitude >= 4.5 and distance_km <= 300:
+                                show_warning = True  # Medium earthquake within 300km
+                            elif magnitude >= 3.5 and distance_km <= 100:
+                                show_warning = True  # Small earthquake nearby
+                            
+                            if show_warning:
+                                warnings.append({
+                                    "type": "gempa",
+                                    "title": "PERINGATAN GEMPA BUMI",
+                                    "magnitude": magnitude_str,
+                                    "depth": gempa.get("Kedalaman", ""),
+                                    "location": gempa.get("Wilayah", ""),
+                                    "time": gempa.get("Tanggal", "") + " " + gempa.get("Jam", ""),
+                                    "potential": gempa.get("Potensi", ""),
+                                    "distance": f"{int(distance_km)} km dari lokasi Anda"
+                                })
+                                logging.info(f"Earthquake warning: M{magnitude} at {distance_km:.1f}km")
+                        else:
+                            # If can't parse coordinates, show if magnitude is significant
+                            if magnitude >= 5.5:
+                                warnings.append({
+                                    "type": "gempa",
+                                    "title": "PERINGATAN GEMPA BUMI",
+                                    "magnitude": magnitude_str,
+                                    "depth": gempa.get("Kedalaman", ""),
+                                    "location": gempa.get("Wilayah", ""),
+                                    "time": gempa.get("Tanggal", "") + " " + gempa.get("Jam", ""),
+                                    "potential": gempa.get("Potensi", ""),
+                                    "distance": ""
+                                })
+            except Exception as gempa_error:
+                logging.warning(f"Error fetching earthquake data: {gempa_error}")
+        
+        # 2. Check for extreme weather warnings
+        try:
+            city_name = settings.get("city_name", "Malang") if settings else "Malang"
+            
+            # Map cities to BMKG province codes
+            province_codes = {
+                "Jakarta": "31", "Bandung": "32", "Yogyakarta": "34", "Semarang": "33",
+                "Surabaya": "35", "Malang": "35", "Denpasar": "51", "Makassar": "73",
+                "Medan": "12", "Palembang": "16", "Pontianak": "61", "Banjarmasin": "63",
+                "Balikpapan": "64", "Manado": "71", "Pekanbaru": "14", "Banyuwangi": "35"
+            }
+            
+            province_code = province_codes.get(city_name, "35")
+            weather_url = f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{get_province_name(province_code)}.xml"
+            
+            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                response = await client.get(weather_url)
+                
+                if response.status_code == 200:
+                    import xml.etree.ElementTree as ET
+                    root = ET.fromstring(response.content)
+                    
+                    # Find matching city/area
+                    for area in root.findall(".//area"):
+                        area_desc = area.get("description", "").lower()
+                        
+                        if city_name.lower() in area_desc or area_desc in city_name.lower():
+                            # Check for extreme weather conditions
+                            weather_param = area.find(".//parameter[@id='weather']")
+                            
+                            if weather_param is not None:
+                                timerange = weather_param.find("timerange")
+                                if timerange is not None:
+                                    values = timerange.findall("value")
+                                    if values:
+                                        weather_code = int(values[0].text)
+                                        
+                                        # Extreme weather codes: 61, 63, 95, 97 (heavy rain, thunderstorm)
+                                        extreme_weather = {
+                                            61: "Hujan Sedang",
+                                            63: "Hujan Lebat",
+                                            95: "Hujan Petir",
+                                            97: "Hujan Petir Kuat"
+                                        }
+                                        
+                                        if weather_code in extreme_weather:
+                                            warnings.append({
+                                                "type": "cuaca",
+                                                "title": "PERINGATAN CUACA EKSTRIM",
+                                                "condition": extreme_weather[weather_code],
+                                                "location": city_name,
+                                                "message": f"Waspadai {extreme_weather[weather_code]} di wilayah {city_name}"
+                                            })
+                                            logging.info(f"Weather warning: {extreme_weather[weather_code]} in {city_name}")
+                            break
+        except Exception as weather_error:
+            logging.warning(f"Error checking extreme weather: {weather_error}")
+        
+        # Return warnings
+        if warnings:
+            return {
+                "has_warning": True,
+                "warnings": warnings
+            }
+        else:
+            return {
+                "has_warning": False,
+                "message": "Tidak ada peringatan bencana saat ini"
+            }
+            
+    except Exception as e:
+        logging.error(f"Error fetching disaster warnings: {e}")
+        return {
+            "has_warning": False,
+            "message": "Tidak dapat mengambil data peringatan"
         }
 
 # Include router
