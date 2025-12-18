@@ -897,7 +897,7 @@ def get_wmo_weather_description(code: int) -> str:
 
 def get_weather_icon(code: int) -> str:
     """
-    Get weather emoji icon based on WMO weather code
+    Get weather emoji icon based on WMO weather code (Open-Meteo)
     """
     icon_map = {
         0: "☀️",     # Cerah
@@ -918,6 +918,29 @@ def get_weather_icon(code: int) -> str:
         95: "⛈️",   # Hujan Petir
         96: "⛈️",   # Hujan Petir dengan Es
         99: "⛈️"    # Hujan Petir dengan Es Lebat
+    }
+    return icon_map.get(code, "🌤️")
+
+def get_bmkg_weather_icon(code: int) -> str:
+    """
+    Get weather emoji icon based on BMKG weather code
+    BMKG uses different weather codes than WMO
+    """
+    icon_map = {
+        0: "☀️",     # Cerah (Clear Skies)
+        1: "🌤️",    # Cerah Berawan (Partly Cloudy)
+        2: "🌤️",    # Cerah Berawan (Partly Cloudy)
+        3: "☁️",     # Berawan (Mostly Cloudy)
+        4: "☁️",     # Berawan Tebal (Overcast)
+        5: "🌫️",    # Udara Kabur (Haze)
+        10: "🌫️",   # Kabut (Fog)
+        45: "🌫️",   # Kabut (Fog)
+        60: "🌧️",   # Hujan Ringan (Light Rain)
+        61: "🌧️",   # Hujan Sedang (Rain)
+        63: "🌧️",   # Hujan Lebat (Heavy Rain)
+        80: "🌧️",   # Hujan Lokal (Isolated Showers)
+        95: "⛈️",   # Hujan Petir (Thunderstorm)
+        97: "⛈️"    # Hujan Petir (Severe Thunderstorm)
     }
     return icon_map.get(code, "🌤️")
 
