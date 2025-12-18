@@ -966,17 +966,82 @@ def parse_gempa_coordinates(coord_str: str) -> tuple:
 
 @api_router.get("/weather-forecast")
 async def get_weather_forecast():
-    """Get hourly weather forecast for prayer times"""
+    """Get hourly weather forecast for prayer times using BMKG API"""
     try:
         # Get location from settings
         settings = await settings_collection.find_one()
         if not settings:
             raise HTTPException(status_code=404, detail="Settings not found")
         
+        city_name = settings.get("city_name", "Malang")
+        
+        # Mapping kota ke kode ADM4 BMKG
+        # Format: 35.73.01.1001 = Jawa Timur (35), Kota Malang (73), Kecamatan Blimbing (01), Kelurahan (1001)
+        city_adm4_map = {
+            "Malang": "35.73.01.1001",  # Kota Malang, Kec. Blimbing, Kel. Balearjosari
+            "Jakarta": "31.71.03.1001",  # Jakarta Pusat, Kemayoran
+            "Surabaya": "35.78.01.1001",
+            "Bandung": "32.73.01.1001",
+            "Yogyakarta": "34.71.01.1001",
+            "Semarang": "33.74.01.1001"
+        }
+        
+        adm4_code = city_adm4_map.get(city_name, "35.73.01.1001")  # Default: Malang
+        
+        # Try BMKG API first (Primary source)
+        try:
+            bmkg_url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={adm4_code}"
+            logging.info(f"Fetching BMKG forecast for {city_name} (ADM4: {adm4_code})")
+            
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.get(bmkg_url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    forecast_by_hour = {}
+                    
+                    # Parse BMKG data
+                    for day_data in data.get("data", []):
+                        for hour_array in day_data.get("cuaca", []):
+                            for forecast in hour_array:
+                                # Parse hour from local_datetime (e.g., "2025-12-18 14:00:00")
+                                dt_str = forecast.get("local_datetime", "")
+                                if dt_str and " " in dt_str:
+                                    time_part = dt_str.split(" ")[1]
+                                    hour = int(time_part.split(":")[0])
+                                    
+                                    # Convert BMKG weather code to emoji
+                                    bmkg_weather_code = forecast.get("weather", 0)
+                                    icon = get_bmkg_weather_icon(bmkg_weather_code)
+                                    
+                                    forecast_by_hour[hour] = {
+                                        "temperature": forecast.get("t", 28),
+                                        "humidity": forecast.get("hu", 75),
+                                        "precipitation": forecast.get("tp", 0),
+                                        "weather_code": bmkg_weather_code,
+                                        "description": forecast.get("weather_desc", "Cerah"),
+                                        "icon": icon,
+                                        "wind_speed": forecast.get("ws", 0),
+                                        "source": "BMKG"
+                                    }
+                    
+                    if forecast_by_hour:
+                        logging.info(f"BMKG forecast fetched: {len(forecast_by_hour)} hours")
+                        return {
+                            "success": True,
+                            "forecast": forecast_by_hour,
+                            "source": "BMKG"
+                        }
+                    else:
+                        logging.warning("BMKG returned empty forecast, falling back to Open-Meteo")
+        
+        except Exception as bmkg_error:
+            logging.warning(f"BMKG API error: {bmkg_error}, falling back to Open-Meteo")
+        
+        # Fallback to Open-Meteo if BMKG fails
         lat = settings.get("latitude", -7.9666)
         lon = settings.get("longitude", 112.6326)
         
-        # Get hourly forecast from Open-Meteo
         forecast_url = (
             f"https://api.open-meteo.com/v1/forecast"
             f"?latitude={lat}&longitude={lon}"
@@ -999,7 +1064,6 @@ async def get_weather_forecast():
                 # Create hourly forecast dictionary
                 forecast_by_hour = {}
                 for i, time_str in enumerate(times):
-                    # Extract hour from ISO format (e.g., "2025-12-09T14:00")
                     hour = int(time_str.split("T")[1].split(":")[0])
                     
                     forecast_by_hour[hour] = {
@@ -1007,17 +1071,19 @@ async def get_weather_forecast():
                         "precipitation": precips[i] if i < len(precips) else 0,
                         "weather_code": weather_codes[i] if i < len(weather_codes) else 0,
                         "description": get_wmo_weather_description(weather_codes[i] if i < len(weather_codes) else 0),
-                        "icon": get_weather_icon(weather_codes[i] if i < len(weather_codes) else 0)
+                        "icon": get_weather_icon(weather_codes[i] if i < len(weather_codes) else 0),
+                        "source": "Open-Meteo"
                     }
                 
-                logging.info(f"Weather forecast fetched: {len(forecast_by_hour)} hours")
+                logging.info(f"Open-Meteo forecast fetched: {len(forecast_by_hour)} hours")
                 
                 return {
                     "success": True,
-                    "forecast": forecast_by_hour
+                    "forecast": forecast_by_hour,
+                    "source": "Open-Meteo (fallback)"
                 }
         
-        # Fallback
+        # Last resort fallback
         return {
             "success": False,
             "forecast": {}
