@@ -33,7 +33,7 @@ Panduan lengkap untuk menjalankan aplikasi ini di komputer local Anda.
   ```bash
   yarn --version
   ```
-
+c
 #### C. MongoDB
 - **Download**: https://www.mongodb.com/try/download/community
 - **Versi Minimum**: MongoDB 5.x atau 6.x
