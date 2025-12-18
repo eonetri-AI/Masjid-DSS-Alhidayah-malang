@@ -649,7 +649,7 @@ async def upload_file(file: UploadFile = File(...)):
 # Weather API endpoint
 @api_router.get("/weather")
 async def get_weather():
-    """Get weather data from BMKG Open Data"""
+    """Get current weather data from BMKG API"""
     try:
         # Get location from settings
         settings = await settings_collection.find_one()
@@ -659,6 +659,43 @@ async def get_weather():
         city_name = settings.get("city_name", "Malang")
         lat = settings.get("latitude", -7.9666)
         lon = settings.get("longitude", 112.6326)
+        
+        # Try BMKG API first
+        city_adm4_map = {
+            "Malang": "35.73.01.1001",
+            "Jakarta": "31.71.03.1001",
+            "Surabaya": "35.78.01.1001",
+            "Bandung": "32.73.01.1001",
+            "Yogyakarta": "34.71.01.1001",
+            "Semarang": "33.74.01.1001"
+        }
+        
+        adm4_code = city_adm4_map.get(city_name, "35.73.01.1001")
+        
+        try:
+            bmkg_url = f"https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4={adm4_code}"
+            
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.get(bmkg_url)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    # Get current/latest forecast
+                    for day_data in data.get("data", []):
+                        for hour_array in day_data.get("cuaca", []):
+                            if hour_array:
+                                # Get first available forecast (closest to now)
+                                forecast = hour_array[0]
+                                
+                                return {
+                                    "temperature": forecast.get("t", 28),
+                                    "humidity": forecast.get("hu", 75),
+                                    "description": forecast.get("weather_desc", "Cerah Berawan"),
+                                    "source": "BMKG"
+                                }
+        except Exception as bmkg_error:
+            logging.warning(f"BMKG API error for current weather: {bmkg_error}")
         
         # Map cities to BMKG province codes
         province_codes = {
