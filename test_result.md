@@ -303,3 +303,30 @@ agent_communication:
     message: "✅ COMPREHENSIVE TESTING COMPLETED SUCCESSFULLY! All 5 major features work perfectly: 1) City dropdown auto-updates coordinates and displays correctly on main screen, 2) Logo/background file upload UI functional, 3) Manual prayer times work and persist, 4) Makkah embed URL updates iframe correctly, 5) City badge displays properly. Additional testing: All admin tabs (Announcements, Quran, Financial) work, Preview mode functions correctly, Settings persistence verified. Minor issue: Toast notifications not appearing but core functionality is solid. Ready for production use."
   - agent: "main"
     message: "NEW FEATURE IMPLEMENTED (9 Dec 2025): Location-Based Disaster Warning System. Added intelligent filtering for earthquake warnings based on distance from mosque location using Haversine formula. Earthquakes shown based on: M≥5.5 within 500km, M≥4.5 within 300km, M≥3.5 within 100km. Also added extreme weather warning detection from BMKG (Heavy Rain, Thunderstorm). Frontend updated to support multiple warnings with different styling (red for earthquakes, orange for weather). Tested with real BMKG data - Tanimbar earthquake (M5.4, 2048km) correctly NOT displayed for Malang location. All unit tests passed. Documentation created in /app/DISASTER_WARNING_DOCS.md and /app/TEST_DISASTER_WARNING.md. Known issue: BMKG Weather XML has parsing error (line 30) but does not affect core functionality. Regular weather display still works via /api/weather."
+
+  - agent: "main"
+    message: "PWA ICON UPDATE (25 Dec 2025): Created proper PNG icons (192x192 and 512x512) for PWA using Python Pillow. Icons feature mosque-themed design with dark blue background, green dome shape, and gold crescent moon. Updated manifest.json to use PNG format instead of SVG placeholders. Updated service-worker.js to cache both PNG and SVG icons. Now requesting frontend testing agent to verify PWA functionality including: installability, offline mode, manifest validation, and service worker caching."
+
+  - task: "PWA Icon Creation"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/public/icon-192x192.png, /app/frontend/public/icon-512x512.png"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Created proper PNG icons for PWA with mosque theme design. Icons are 192x192 and 512x512 pixels."
+
+  - task: "PWA Functionality"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/public/manifest.json, /app/frontend/public/service-worker.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "PWA files created in previous fork. Updated manifest.json to use PNG icons. Ready for comprehensive testing."
