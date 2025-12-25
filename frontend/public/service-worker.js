@@ -16,7 +16,9 @@ const STATIC_ASSETS = [
   '/static/js/bundle.js',
   '/manifest.json',
   '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/icon-512x512.png',
+  '/icon-192x192.svg',
+  '/icon-512x512.svg'
 ];
 
 // API endpoints to cache
