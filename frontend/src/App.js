@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DisplayView from "./pages/DisplayView";
 import AdminPanel from "./pages/AdminPanel";
 import PreviewPage from "./pages/PreviewPage";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import "@/App.css";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/preview" element={<PreviewPage />} />
         </Routes>
       </BrowserRouter>
+      <PWAInstallPrompt />
     </div>
   );
 }
