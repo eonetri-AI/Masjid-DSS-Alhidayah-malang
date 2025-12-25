@@ -1,0 +1,36 @@
+{
+  "name": "Digital Signage Masjid - Jadwal Sholat",
+  "short_name": "Masjid Display",
+  "description": "Aplikasi Digital Signage untuk Masjid dengan jadwal sholat, cuaca, dan informasi masjid",
+  "start_url": "/display",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#0F172A",
+  "background_color": "#0F172A",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
+}
